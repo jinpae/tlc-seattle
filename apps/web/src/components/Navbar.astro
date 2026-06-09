@@ -1,0 +1,53 @@
+---
+const navLinks = [
+  { label: '교회 소개', href: '/about' },
+  { label: '예배 및 모임', href: '/worship' },
+  { label: '설교', href: '/sermons' },
+  { label: '사진첩', href: '/gallery' },
+  { label: '오시는 길', href: '/directions' },
+];
+---
+
+<header id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-[#f7f5f2] border-b border-transparent transition-[background-color,border-color,box-shadow] duration-300">
+  <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3 group">
+      <div class="w-9 h-9 rounded-full bg-blue-900 flex items-center justify-center flex-shrink-0">
+        <span class="text-white text-xs font-bold">참빛</span>
+      </div>
+      <span class="text-gray-900 font-semibold text-base tracking-tight">시애틀 참빛교회</span>
+    </a>
+
+    <!-- Nav links -->
+    <nav class="hidden md:flex items-center gap-8">
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class="text-[1.125rem] 3xl:text-[1.25rem] tracking-[-0.04rem] text-gray-600 hover:text-gray-900 transition-colors font-bold"
+        >
+          {link.label}
+        </a>
+      ))}
+    </nav>
+
+    <!-- Mobile menu button (placeholder) -->
+    <button class="md:hidden p-2 text-gray-600" aria-label="메뉴 열기">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </div>
+</header>
+
+<script>
+  const navbar = document.getElementById('navbar');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY > 0;
+    navbar?.classList.toggle('bg-white/95', scrolled);
+    navbar?.classList.toggle('bg-[#f7f5f2]', !scrolled);
+    navbar?.classList.toggle('backdrop-blur-sm', scrolled);
+    navbar?.classList.toggle('border-gray-100', scrolled);
+    navbar?.classList.toggle('border-transparent', !scrolled);
+    navbar?.classList.toggle('shadow-md', scrolled);
+  }, { passive: true });
+</script>

@@ -1,0 +1,27 @@
+---
+---
+
+<div>
+  <div class="flex items-center justify-between mb-2">
+    <h3 class="text-xl font-bold text-gray-900">예배 & 모임 일정</h3>
+    <a href="/worship" class="text-gray-400 hover:text-gray-600 transition-colors" aria-label="예배 안내 전체 보기">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 4v16m8-8H4" />
+      </svg>
+    </a>
+  </div>
+
+  <div class="divide-y divide-gray-100">
+    {[
+      { name: '주일 예배 (본당)',     time: '주일 오후 1:15'   },
+      { name: '새벽 예배 (Zoom)',     time: '화~금 오전 6:30' },
+      { name: '수요 성경공부 (Zoom)', time: '수 저녁 7:30'    },
+      { name: '소그룹 모임',         time: '주중'            },
+    ].map(({ name, time }) => (
+      <div class="flex items-center justify-between py-5">
+        <span class="text-gray-800">{name}</span>
+        <span class="text-gray-600 tabular-nums">{time}</span>
+      </div>
+    ))}
+  </div>
+</div>

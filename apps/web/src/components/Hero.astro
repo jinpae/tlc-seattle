@@ -1,0 +1,66 @@
+---
+import ChurchIllustration from './ChurchIllustration.astro';
+---
+
+<section class="relative flex items-center pt-20 overflow-hidden">
+  <!-- Background -->
+  <div class="absolute inset-0 bg-[#f7f5f2]"></div>
+
+  <!-- Church illustration (anchored to content, hill bleeds right) -->
+  <div class="absolute inset-0 pointer-events-none select-none">
+    <div class="max-w-6xl mx-auto h-full px-6 relative">
+      <div
+        class="absolute bottom-0 -right-20 w-[50%] max-w-[640px]"
+        style="--church-light: #f7f5f2;"
+      >
+        <ChurchIllustration />
+      </div>
+    </div>
+  </div>
+
+  <!-- Dot pattern (full width, above illustration) -->
+  <div class="absolute inset-0 opacity-20 pointer-events-none"
+    style="background-image: radial-gradient(circle at 2px 2px, #352F2D 1px, transparent 0); background-size: 28px 28px;">
+  </div>
+
+  <div class="relative z-10 max-w-6xl mx-auto px-6 py-24 w-full">
+    <!-- Text content -->
+    <div class="text-[#352F2D]">
+      <span class="inline-block -ml-5 text-xs md:text-base font-semibold tracking-widest uppercase mb-6 pl-4 pr-5 py-2 md:pl-6 md:pr-8 md:py-3 bg-[#674c49] text-[#f1f1f1]"
+        style="clip-path: polygon(0% 0%, 100% 0%, calc(100% - 16px) 100%, 0% 100%);">
+        Welcome to True Light Church in Seattle
+      </span>
+
+      <h1 class="font-serif text-4xl md:max-[1727px]:text-[56px] 3xl:text-[64px] font-bold leading-tight 3xl:leading-[5.5rem] mb-6 word-break-keep-all">
+        참 빛 되신 예수님을 <br /> 전하는 교회
+      </h1>
+
+      <p class="font-serif text-[#352F2D]/80 text-lg 3xl:text-xl leading-relaxed mb-12 3xl:mb-14">
+        "참 빛 곧 세상에 와서 각 사람에게 비추는 빛이 있었나니" (요 1:9)
+      </p>
+
+      <!-- CTA buttons -->
+      <div class="flex flex-wrap gap-4">
+        <a
+          href="/about"
+          class="inline-flex items-center gap-2 bg-[#352F2D] text-[#f1f1f1] font-semibold text-lg 3xl:text-xl px-[28px] py-[14px] 3xl:px-[32px] 3xl:py-[16px] border border-transparent rounded-lg hover:bg-[#4a4340] transition-colors shadow-lg"
+        >
+          교회 소개
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+        <a
+          href="/worship"
+          class="inline-flex items-center gap-2 border border-[#352F2D]/40 text-[#352F2D] font-semibold text-lg 3xl:text-xl px-[28px] py-[14px] 3xl:px-[32px] 3xl:py-[16px] rounded-lg hover:bg-[#352F2D]/10 transition-colors"
+        >
+          예배 안내
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+
+</section>
