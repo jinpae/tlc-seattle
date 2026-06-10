@@ -11,11 +11,8 @@ const navLinks = [
 <header id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-[#f7f5f2] border-b border-transparent transition-[background-color,border-color,box-shadow] duration-300">
   <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
     <!-- Logo -->
-    <a href="/" class="flex items-center gap-3 group">
-      <div class="w-9 h-9 rounded-full bg-blue-900 flex items-center justify-center flex-shrink-0">
-        <span class="text-white text-xs font-bold">참빛</span>
-      </div>
-      <span class="text-gray-900 font-semibold text-base tracking-tight">시애틀 참빛교회</span>
+    <a href="/" aria-label="시애틀 참빛교회 홈">
+      <img src="/images/logo.svg" alt="시애틀 참빛교회 로고" class="h-[44px] w-auto" />
     </a>
 
     <!-- Nav links -->
@@ -39,9 +36,10 @@ const navLinks = [
   </div>
 </header>
 
-<script>
+<script is:inline>
   const navbar = document.getElementById('navbar');
-  window.addEventListener('scroll', () => {
+
+  function updateNavbar() {
     const scrolled = window.scrollY > 0;
     navbar?.classList.toggle('bg-white/95', scrolled);
     navbar?.classList.toggle('bg-[#f7f5f2]', !scrolled);
@@ -49,5 +47,8 @@ const navLinks = [
     navbar?.classList.toggle('border-gray-100', scrolled);
     navbar?.classList.toggle('border-transparent', !scrolled);
     navbar?.classList.toggle('shadow-md', scrolled);
-  }, { passive: true });
+  }
+
+  updateNavbar();
+  window.addEventListener('scroll', updateNavbar, { passive: true });
 </script>
