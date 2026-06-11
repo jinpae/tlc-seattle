@@ -1,0 +1,139 @@
+---
+const mapsUrl = 'https://www.google.com/maps/search/?api=1&query=19010+5th+Ave+NE+Shoreline+WA+98155';
+
+const navGroups = [
+  {
+    label: '교회 소개',
+    href: '/about',
+    links: [
+      { label: '환영합니다', href: '/about/welcome' },
+      { label: '역사',       href: '/about/history'  },
+      { label: '담임 목사',  href: '/about/pastor'   },
+    ],
+  },
+  {
+    label: '예배 및 모임',
+    href: '/worship',
+    links: [
+      { label: '예배', href: '/worship/service' },
+      { label: '모임', href: '/worship/gathering'  },
+    ],
+  },
+  {
+    label: '더 보기',
+    href: null,
+    links: [
+      { label: '설교',    href: '/sermons'    },
+      { label: '사진첩',  href: '/gallery'    },
+      { label: '오시는 길', href: '/directions' },
+    ],
+  },
+];
+---
+
+<footer class="bg-[#352F2D] text-white/50 text-[18px]">
+  <div class="max-w-6xl mx-auto px-6 py-16">
+    <div class="grid md:grid-cols-2 gap-12 md:gap-16">
+
+      <!-- Left: logo, contact, socials -->
+      <div class="flex flex-col gap-8 pointer-events-none select-none" draggable="false">
+        <img
+          src="/images/logo.svg"
+          alt="시애틀 참빛교회"
+          class="h-10 w-auto self-start"
+          style="filter: brightness(0) invert(1); opacity: 0.4;"
+        />
+
+        <!-- Address group -->
+        <a
+          href={mapsUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex flex-col self-start hover:text-white transition-colors group"
+        >
+          <span class="inline-flex items-center gap-1.5">
+            19010 5th Ave NE, Shoreline, WA 98155
+            <svg class="w-[18px] h-[18px] shrink-0 opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
+            </svg>
+          </span>
+          <span class="text-white/40 text-[16px]">(@ Evergreen Baptist Church)</span>
+        </a>
+
+        <!-- Email + phone group -->
+        <div class="flex flex-col gap-1">
+          <a
+            href="mailto:TLCinSeattle2018@gmail.com"
+            class="self-start hover:text-white transition-colors"
+          >
+            TLCinSeattle2018@gmail.com
+          </a>
+          <a
+            href="tel:+12067351605"
+            class="self-start hover:text-white transition-colors"
+          >
+            (206) 735-1605
+            <span class="text-white/40 text-[15px]">(김유신 목사님)</span>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Right: site map -->
+      <div class="grid grid-cols-3 gap-6">
+        {navGroups.map(group => (
+          <div class="flex flex-col gap-2">
+            <p class="text-[20px] text-white/50 font-semibold mb-1">
+              {group.href
+                ? <a href={group.href} class="hover:text-white transition-colors">{group.label}</a>
+                : group.label
+              }
+            </p>
+            {group.links.map(link => (
+              <a href={link.href} class="self-start text-[18px] text-white/40 hover:text-white/70 transition-colors">
+                {link.label}
+              </a>
+            ))}
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Copyright bar -->
+  <div class="max-w-6xl mx-auto px-6">
+    <div class="border-t border-white/10 py-5 flex items-center justify-between">
+      <p class="text-sm text-white/30">
+        © 2026 True Light Church in Seattle. All rights reserved.
+      </p>
+      <div class="flex items-center gap-4">
+        <a
+          href="https://www.instagram.com/seattletruelightchurch"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram"
+          class="text-white/30 hover:text-white/70 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <rect x="2" y="2" width="20" height="20" rx="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="12" cy="12" r="4" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+        <a
+          href="https://www.youtube.com/@truelightchurchinseattle8336"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="YouTube"
+          class="text-white/30 hover:text-white/70 transition-colors"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21.582 7.168a2.722 2.722 0 0 0-1.916-1.927C18.005 4.75 12 4.75 12 4.75s-6.005 0-7.666.491A2.722 2.722 0 0 0 2.418 7.168 28.8 28.8 0 0 0 2 12a28.8 28.8 0 0 0 .418 4.832 2.722 2.722 0 0 0 1.916 1.927C5.995 19.25 12 19.25 12 19.25s6.005 0 7.666-.491a2.722 2.722 0 0 0 1.916-1.927A28.8 28.8 0 0 0 22 12a28.8 28.8 0 0 0-.418-4.832Z"/>
+            <path d="m10 15 5-3-5-3v6Z" fill="currentColor" stroke="none"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
