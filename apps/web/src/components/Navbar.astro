@@ -1,4 +1,9 @@
 ---
+interface Props {
+  variant?: 'hero' | 'page';
+}
+const { variant = 'page' } = Astro.props;
+
 const navLinks = [
   { label: '교회 소개', href: '/about' },
   { label: '예배 및 모임', href: '/worship' },
@@ -8,7 +13,15 @@ const navLinks = [
 ];
 ---
 
-<header id="navbar" class="fixed top-0 left-0 right-0 z-50 bg-[#f7f5f2] border-b border-transparent transition-[background-color,border-color,box-shadow] duration-300">
+<header
+  id="navbar"
+  class:list={[
+    'fixed top-0 left-0 right-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300',
+    variant === 'page'
+      ? 'bg-white/95 backdrop-blur-sm border-gray-100 shadow-md'
+      : 'bg-[#f7f5f2] border-transparent',
+  ]}
+>
   <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
     <!-- Logo -->
     <a href="/" aria-label="시애틀 참빛교회 홈">
@@ -36,19 +49,21 @@ const navLinks = [
   </div>
 </header>
 
-<script is:inline>
-  const navbar = document.getElementById('navbar');
+{variant === 'hero' && (
+  <script is:inline>
+    const navbar = document.getElementById('navbar');
 
-  function updateNavbar() {
-    const scrolled = window.scrollY > 0;
-    navbar?.classList.toggle('bg-white/95', scrolled);
-    navbar?.classList.toggle('bg-[#f7f5f2]', !scrolled);
-    navbar?.classList.toggle('backdrop-blur-sm', scrolled);
-    navbar?.classList.toggle('border-gray-100', scrolled);
-    navbar?.classList.toggle('border-transparent', !scrolled);
-    navbar?.classList.toggle('shadow-md', scrolled);
-  }
+    function updateNavbar() {
+      const scrolled = window.scrollY > 0;
+      navbar?.classList.toggle('bg-white/95', scrolled);
+      navbar?.classList.toggle('bg-[#f7f5f2]', !scrolled);
+      navbar?.classList.toggle('backdrop-blur-sm', scrolled);
+      navbar?.classList.toggle('border-gray-100', scrolled);
+      navbar?.classList.toggle('border-transparent', !scrolled);
+      navbar?.classList.toggle('shadow-md', scrolled);
+    }
 
-  updateNavbar();
-  window.addEventListener('scroll', updateNavbar, { passive: true });
-</script>
+    updateNavbar();
+    window.addEventListener('scroll', updateNavbar, { passive: true });
+  </script>
+)}
