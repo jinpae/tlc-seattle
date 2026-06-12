@@ -9,6 +9,11 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
   integrations: [react()],
 
+  prefetch: {
+    prefetchAll: true,
+    defaultStrategy: 'load',
+  },
+
   vite: {
     plugins: [tailwindcss()]
   },
