@@ -15,6 +15,7 @@ const navLinks = [
 
 <header
   id="navbar"
+  data-variant={variant}
   class:list={[
     'fixed top-0 left-0 right-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300',
     variant === 'page'
@@ -49,21 +50,23 @@ const navLinks = [
   </div>
 </header>
 
-{variant === 'hero' && (
-  <script is:inline>
+<script>
+  // Re-query on every call: client-side navigation swaps in a new <header>,
+  // so a captured reference would go stale after the first transition.
+  function updateNavbar() {
     const navbar = document.getElementById('navbar');
+    if (navbar?.dataset.variant !== 'hero') return;
 
-    function updateNavbar() {
-      const scrolled = window.scrollY > 0;
-      navbar?.classList.toggle('bg-white/95', scrolled);
-      navbar?.classList.toggle('bg-[#f7f5f2]', !scrolled);
-      navbar?.classList.toggle('backdrop-blur-sm', scrolled);
-      navbar?.classList.toggle('border-gray-100', scrolled);
-      navbar?.classList.toggle('border-transparent', !scrolled);
-      navbar?.classList.toggle('shadow-md', scrolled);
-    }
+    const scrolled = window.scrollY > 0;
+    navbar.classList.toggle('bg-white/95', scrolled);
+    navbar.classList.toggle('bg-[#f7f5f2]', !scrolled);
+    navbar.classList.toggle('backdrop-blur-sm', scrolled);
+    navbar.classList.toggle('border-gray-100', scrolled);
+    navbar.classList.toggle('border-transparent', !scrolled);
+    navbar.classList.toggle('shadow-md', scrolled);
+  }
 
-    updateNavbar();
-    window.addEventListener('scroll', updateNavbar, { passive: true });
-  </script>
-)}
+  updateNavbar();
+  document.addEventListener('astro:page-load', updateNavbar);
+  window.addEventListener('scroll', updateNavbar, { passive: true });
+</script>
