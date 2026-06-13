@@ -12,20 +12,13 @@ const navGroups = [
     ],
   },
   {
-    label: '예배 및 모임',
-    href: '/worship',
-    links: [
-      { label: '예배', href: '/worship/service' },
-      { label: '모임', href: '/worship/gathering'  },
-    ],
-  },
-  {
-    label: '더 보기',
+    label: '바로가기',
     href: null,
     links: [
-      { label: '설교',    href: '/sermons'    },
-      { label: '사진첩',  href: '/gallery'    },
-      { label: '오시는 길', href: '/directions' },
+      { label: '예배 및 모임', href: '/worship'    },
+      { label: '설교',         href: '/sermons'    },
+      { label: '사진첩',       href: '/gallery'    },
+      { label: '오시는 길',    href: '/directions' },
     ],
   },
 ];
@@ -81,7 +74,7 @@ const navGroups = [
       </div>
 
       <!-- Right: site map -->
-      <div class="grid grid-cols-3 gap-6">
+      <div class="grid grid-cols-2 gap-6">
         {navGroups.map(group => (
           <div class="flex flex-col gap-2">
             <p class="text-[20px] text-white/50 font-semibold mb-1">
