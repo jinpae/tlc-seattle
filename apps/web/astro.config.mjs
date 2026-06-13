@@ -2,12 +2,13 @@
 import { defineConfig, envField } from 'astro/config';
 
 import react from '@astrojs/react';
-
+import vercel from '@astrojs/vercel';
 import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
   integrations: [react()],
+  adapter: vercel(),
 
   prefetch: {
     prefetchAll: true,
@@ -22,7 +23,7 @@ export default defineConfig({
     schema: {
       PUBLIC_SANITY_PROJECT_ID: envField.string({ context: 'client', access: 'public' }),
       PUBLIC_SANITY_DATASET: envField.string({ context: 'client', access: 'public' }),
-      PUBLIC_YOUTUBE_API_KEY: envField.string({ context: 'client', access: 'public' }),
+      YOUTUBE_API_KEY: envField.string({ context: 'server', access: 'secret' }),
     }
   }
 });
