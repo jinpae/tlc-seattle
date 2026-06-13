@@ -68,12 +68,12 @@ const rows = [
       </h1>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left border-collapse text-[20px]">
+        <table class="w-full text-left border-collapse text-[17px] md:text-[20px]">
           <thead>
             <tr class="border-b-2 border-gray-900">
-              <th class="pb-4 pr-12 font-bold text-gray-900 whitespace-nowrap">예배 / 모임</th>
-              <th class="pb-4 pr-12 font-bold text-gray-900 whitespace-nowrap">시간</th>
-              <th class="pb-4 pr-12 font-bold text-gray-900 whitespace-nowrap">장소</th>
+              <th class="pb-4 pr-6 md:pr-12 font-bold text-gray-900 whitespace-nowrap">예배 / 모임</th>
+              <th class="pb-4 pr-6 md:pr-12 font-bold text-gray-900 whitespace-nowrap">시간</th>
+              <th class="pb-4 pr-6 md:pr-12 font-bold text-gray-900 whitespace-nowrap">장소</th>
               <th class="pb-4 font-bold text-gray-900">안내</th>
             </tr>
           </thead>
@@ -81,7 +81,7 @@ const rows = [
             {rows.map((row, i) => (
               <Fragment>
                 <tr class="border-b border-gray-200 cursor-pointer hover:bg-gray-50" data-toggle aria-controls={`detail-${i}`}>
-                  <td class="py-6 pr-12 text-gray-900 whitespace-nowrap">
+                  <td class="py-4 md:py-6 pr-6 md:pr-12 text-gray-900 whitespace-nowrap">
                     <button
                       class="flex items-center gap-2 font-medium text-left pointer-events-none"
                       aria-expanded="false"
@@ -98,12 +98,12 @@ const rows = [
                       {row.name}
                     </button>
                   </td>
-                  <td class="py-6 pr-12 text-gray-600 whitespace-nowrap">{row.time}</td>
-                  <td class="py-6 pr-12 text-gray-600 whitespace-nowrap">{row.place}</td>
-                  <td class="py-6 text-gray-600">{row.note}</td>
+                  <td class="py-4 md:py-6 pr-6 md:pr-12 text-gray-600 whitespace-nowrap">{row.time}</td>
+                  <td class="py-4 md:py-6 pr-6 md:pr-12 text-gray-600 whitespace-nowrap">{row.place}</td>
+                  <td class="py-4 md:py-6 text-gray-600">{row.note}</td>
                 </tr>
                 <tr id={`detail-${i}`} class="hidden border-b border-gray-200 bg-gray-50">
-                  <td colspan="4" class="px-8 py-5 font-serif text-[18px] text-gray-600 leading-relaxed">
+                  <td colspan="4" class="px-6 md:px-8 py-4 md:py-5 font-serif text-[16px] md:text-[18px] text-gray-600 leading-relaxed">
                     {row.detail}
                   </td>
                 </tr>
