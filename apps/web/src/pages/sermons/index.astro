@@ -31,23 +31,23 @@ import Footer from '../../components/Footer.astro';
         ))}
       </div>
 
-      <div id="pagination" class="hidden mt-10 items-center justify-center gap-3">
+      <div id="pagination" class="hidden mt-10 items-center justify-end gap-6">
         <button
           id="prev-btn"
-          class="hidden items-center gap-1.5 px-4 py-2 text-sm font-medium text-[#352F2D] border border-[#352F2D]/40 rounded-lg hover:bg-[#352F2D]/10 transition-colors disabled:opacity-40"
+          class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
         >
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
           </svg>
           이전
         </button>
         <button
           id="next-btn"
-          class="hidden items-center gap-1.5 px-4 py-2 text-sm font-medium text-[#352F2D] border border-[#352F2D]/40 rounded-lg hover:bg-[#352F2D]/10 transition-colors disabled:opacity-40"
+          class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
         >
           다음
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
           </svg>
         </button>
       </div>
@@ -88,12 +88,13 @@ import Footer from '../../components/Footer.astro';
   let nextToken: string | null = null;
   let prevToken: string | null = null;
 
-  function cardHTML({ videoId, title, publishedAt, thumbnail, duration }: any) {
+  function cardHTML({ videoId, title, publishedAt, thumbnail, duration }: any, pageToken: string) {
     const date = new Date(publishedAt).toLocaleDateString('ko-KR', {
       year: 'numeric', month: 'long', day: 'numeric',
     });
+    const from = pageToken ? `?from=${encodeURIComponent(pageToken)}` : '';
     return `
-      <a href="/sermons/${videoId}" class="sermon-card-sm group bg-white overflow-hidden">
+      <a href="/sermons/${videoId}${from}" class="sermon-card-sm group bg-white overflow-hidden">
         <div class="relative aspect-video overflow-hidden">
           <img
             src="${thumbnail}"
@@ -145,7 +146,7 @@ import Footer from '../../components/Footer.astro';
       nextToken = data.nextPageToken;
       prevToken = data.prevPageToken;
 
-      grid.innerHTML = data.sermons.map(cardHTML).join('');
+      grid.innerHTML = data.sermons.map(s => cardHTML(s, pageToken)).join('');
       pagination.classList.remove('hidden');
       pagination.classList.add('flex');
 

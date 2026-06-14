@@ -23,43 +23,54 @@ const publishedAt = video.snippet.publishedAt as string;
 const date = new Date(publishedAt).toLocaleDateString('ko-KR', {
   year: 'numeric', month: 'long', day: 'numeric',
 });
+
+const fromToken = Astro.url.searchParams.get('from');
+const backHref = fromToken ? `/sermons?pageToken=${encodeURIComponent(fromToken)}` : '/sermons';
 ---
 
 <Layout title={`${title} | 시애틀 참빛교회`}>
   <Navbar />
 
   <main class="bg-white flex-1 pt-20">
-    <div class="max-w-4xl mx-auto px-6 py-12 md:py-20">
+    <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
 
-      <a
-        href="/sermons"
-        class="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mb-8"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
-        </svg>
-        설교 목록
-      </a>
-
-      <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-snug mb-3">
-        {title}
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-4 border-b border-gray-200 mb-10">
+        <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
+          설교
+        </span>
       </h1>
-      <p class="flex items-center gap-1.5 text-sm text-gray-500 mb-8">
-        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-          <rect x="3" y="4" width="18" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
-          <path stroke-linecap="round" stroke-linejoin="round" d="M16 2v4M8 2v4M3 10h18" />
-        </svg>
-        {date}
-      </p>
 
-      <div class="aspect-video w-full rounded-lg overflow-hidden shadow-md">
-        <iframe
-          src={`https://www.youtube.com/embed/${videoId}`}
-          title={title}
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-          class="w-full h-full"
-        />
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 leading-snug mb-2">
+          {title}
+        </h2>
+        <p class="flex items-center gap-1.5 text-sm text-gray-500 mb-8">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 2v4M8 2v4M3 10h18" />
+          </svg>
+          {date}
+        </p>
+
+        <div class="aspect-video w-full">
+          <iframe
+            src={`https://www.youtube.com/embed/${videoId}`}
+            title={title}
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            class="w-full h-full"
+          />
+        </div>
+
+        <a
+          href={backHref}
+          class="inline-flex items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors mt-16"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          </svg>
+          목록으로
+        </a>
       </div>
 
     </div>
