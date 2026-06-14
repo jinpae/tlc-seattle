@@ -1,0 +1,44 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import { client } from '../../lib/sanity';
+import { newsQuery, type NewsItem } from '../../lib/queries/news';
+
+const items: NewsItem[] = await client.fetch(newsQuery);
+---
+
+<Layout title="교회 소식 | 시애틀 참빛교회">
+  <Navbar />
+
+  <main class="bg-white flex-1 pt-20">
+    <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
+        <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
+          알려드립니다
+        </span>
+      </h1>
+
+      {items.length === 0 ? (
+        <p class="text-center text-gray-400 py-24">등록된 소식이 없습니다.</p>
+      ) : (
+        <ul class="border-t border-gray-200">
+          {items.map(item => (
+              <li class="border-b border-gray-200 py-5 md:py-6 px-6 flex items-baseline justify-between gap-6">
+                <div class="min-w-0">
+                  <p class="text-[17px] md:text-[20px] font-semibold text-gray-900 leading-snug">
+                    {item.title}
+                  </p>
+                </div>
+                <p class="text-[17px] md:text-[20px] text-gray-600 shrink-0">{item.date}</p>
+              </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

@@ -1,8 +1,8 @@
 import {defineType, defineField} from 'sanity'
 
-export const album = defineType({
-  name: 'album',
-  title: '사진첩',
+export const news = defineType({
+  name: 'news',
+  title: '교회 소식',
   type: 'document',
   fields: [
     defineField({
@@ -15,34 +15,23 @@ export const album = defineType({
       name: 'slug',
       title: '슬러그',
       description:
-        '사진첩 페이지 주소의 마지막 부분입니다. 예: 2025-easter → seattletruelight.church/gallery/2025-easter. 다른 소식과 중복되지 않는 고유한 값을 입력해 주세요.',
+        '소식 페이지 주소의 마지막 부분입니다. 예: 2025-easter-service-potluck → seattletruelight.church/news/2025-easter-service-potluck. 다른 소식과 중복되지 않는 고유한 값을 입력해 주세요.',
       type: 'slug',
       options: {source: 'title', maxLength: 96},
       validation: (Rule) => Rule.required(),
     }),
     defineField({
       name: 'date',
-      title: '날짜',
+      title: '작성일',
       type: 'date',
+      initialValue: () => new Date().toISOString().slice(0, 10),
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'description',
-      title: '설명',
-      type: 'text',
-      rows: 3,
-    }),
-    defineField({
-      name: 'coverImage',
-      title: '대표 사진',
-      type: 'image',
-      options: {hotspot: true},
-    }),
-    defineField({
-      name: 'photos',
-      title: '사진',
+      name: 'body',
+      title: '본문',
       type: 'array',
-      of: [{type: 'image', options: {hotspot: true}}],
+      of: [{type: 'block'}],
     }),
   ],
   orderings: [
@@ -56,10 +45,9 @@ export const album = defineType({
     select: {
       title: 'title',
       date: 'date',
-      media: 'coverImage',
     },
-    prepare({title, date, media}: {title: string; date: string; media: unknown}) {
-      return {title, subtitle: date, media}
+    prepare({title, date}: {title: string; date: string}) {
+      return {title, subtitle: date}
     },
   },
 })
