@@ -88,6 +88,16 @@ import Footer from '../../components/Footer.astro';
   let nextToken: string | null = null;
   let prevToken: string | null = null;
 
+  function preloadImages(urls: string[]): Promise<void> {
+    const loads = Promise.all(urls.map(src => new Promise<void>(resolve => {
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      img.src = src;
+    })));
+    return Promise.race([loads, new Promise<void>(resolve => setTimeout(resolve, 1000))]);
+  }
+
   function cardHTML({ videoId, title, publishedAt, thumbnail, duration }: any, pageToken: string) {
     const date = new Date(publishedAt).toLocaleDateString('ko-KR', {
       year: 'numeric', month: 'long', day: 'numeric',
@@ -124,16 +134,6 @@ import Footer from '../../components/Footer.astro';
     const nextBtn = document.getElementById('next-btn');
     if (!grid || !pagination || !prevBtn || !nextBtn) return;
 
-    grid.innerHTML = Array.from({ length: 12 }).map(() => `
-      <div class="bg-gray-50 overflow-hidden border border-gray-200 animate-pulse">
-        <div class="aspect-video bg-gray-200"></div>
-        <div class="sermon-card-skeleton-body">
-          <div class="sermon-card-skeleton-title-a"></div>
-          <div class="sermon-card-skeleton-title-b"></div>
-          <div class="sermon-card-skeleton-date"></div>
-        </div>
-      </div>`).join('');
-
     try {
       const url = new URL('/api/sermons.json', window.location.origin);
       url.searchParams.set('maxResults', '12');
@@ -146,6 +146,7 @@ import Footer from '../../components/Footer.astro';
       nextToken = data.nextPageToken;
       prevToken = data.prevPageToken;
 
+      await preloadImages(data.sermons.map((s: any) => s.thumbnail));
       grid.innerHTML = data.sermons.map(s => cardHTML(s, pageToken)).join('');
       pagination.classList.remove('hidden');
       pagination.classList.add('flex');
