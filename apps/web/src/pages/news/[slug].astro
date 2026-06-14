@@ -1,0 +1,63 @@
+---
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import Navbar from '../../components/Navbar.astro';
+import Footer from '../../components/Footer.astro';
+import PortableText from '../../components/PortableText';
+import { client } from '../../lib/sanity';
+import { newsBySlugQuery, type NewsDetail } from '../../lib/queries/news';
+
+const { slug } = Astro.params;
+const item: NewsDetail | null = await client.fetch(newsBySlugQuery, { slug });
+
+if (!item) {
+  return Astro.redirect('/news');
+}
+---
+
+<Layout title={`${item.title} | 시애틀 참빛교회`}>
+  <Navbar />
+
+  <main class="bg-white flex-1 pt-20">
+    <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
+
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
+        <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
+          알려드립니다
+        </span>
+      </h1>
+
+      <div>
+        <h2 class="text-xl md:text-2xl font-bold text-gray-900 leading-snug mb-2">
+          {item.title}
+        </h2>
+        <p class="flex items-center gap-1.5 text-sm text-gray-400 mb-8">
+          <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <rect x="3" y="4" width="18" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 2v4M8 2v4M3 10h18" />
+          </svg>
+          {item.date}
+        </p>
+
+        {item.body && item.body.length > 0
+          ? <PortableText value={item.body} />
+          : <p class="text-gray-400">본문이 없습니다.</p>
+        }
+
+        <a
+          href="/news"
+          class="inline-flex items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors mt-16"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          </svg>
+          교회 소식 목록
+        </a>
+      </div>
+
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

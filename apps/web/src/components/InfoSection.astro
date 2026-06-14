@@ -1,4 +1,6 @@
 ---
+import { client } from '../lib/sanity';
+
 const schedule = [
   { name: '주일 예배 (본당)',       time: '주일 오후 1:15'   },
   { name: '새벽 예배 (Zoom)',       time: '화~금 오전 6:30' },
@@ -6,13 +8,9 @@ const schedule = [
   { name: '소그룹 모임',           time: '주중'            },
 ];
 
-const news = [
-  { title: '6월 임시 당회 결과 보고',         date: '06.08.2026' },
-  { title: '2026 여름 수련회 안내',           date: '06.01.2026' },
-  { title: '교회 창립 기념 예배 안내',         date: '05.25.2026' },
-  { title: '새 가족 환영회 (5월)',            date: '05.18.2026' },
-  { title: '선교 헌금 보고 및 감사',          date: '05.11.2026' },
-];
+const newsItems: { title: string; slug: string; date: string }[] = await client.fetch(
+  `*[_type == "news"] | order(date desc) [0...5] { title, "slug": slug.current, date }`
+);
 ---
 
 <section class="bg-white py-16 md:py-24">
@@ -29,7 +27,7 @@ const news = [
             </svg>
           </a>
         </div>
-        <div class="divide-y divide-gray-200">
+        <div class="divide-y divide-gray-200 border-b border-gray-200">
           {schedule.map(item => (
             <div class="flex items-center justify-between py-4">
               <span class="text-gray-600 text-[20px]">{item.name}</span>
@@ -49,13 +47,17 @@ const news = [
             </svg>
           </a>
         </div>
-        <div class="divide-y divide-gray-200">
-          {news.map(item => (
-            <a href="/news" class="flex items-center justify-between py-4 group">
-              <span class="text-gray-600 text-[20px] group-hover:text-gray-900 transition-colors truncate pr-4">{item.title}</span>
-              <span class="text-gray-500 text-[20px] font-light tabular-nums shrink-0">{item.date}</span>
-            </a>
-          ))}
+        <div class="divide-y divide-gray-200 border-b border-gray-200">
+          {newsItems.length === 0 ? (
+            <p class="text-gray-400 text-[20px] py-4">등록된 소식이 없습니다.</p>
+          ) : (
+            newsItems.map(item => (
+              <a href={`/news/${item.slug}`} class="flex items-center justify-between py-4 group">
+                <span class="text-gray-600 text-[20px] group-hover:text-gray-900 transition-colors truncate pr-4">{item.title}</span>
+                <span class="text-gray-500 text-[20px] font-light tabular-nums shrink-0">{item.date}</span>
+              </a>
+            ))
+          )}
         </div>
       </div>
 

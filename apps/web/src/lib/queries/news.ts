@@ -1,8 +1,11 @@
-export const newsQuery = `*[_type == "news"] | order(date desc) {
-  _id,
-  title,
-  slug,
-  date
+export const newsPaginatedQuery = `{
+  "items": *[_type == "news"] | order(date desc) [$from...$to] {
+    _id,
+    title,
+    slug,
+    date
+  },
+  "total": count(*[_type == "news"])
 }`
 
 export const newsBySlugQuery = `*[_type == "news" && slug.current == $slug][0] {
