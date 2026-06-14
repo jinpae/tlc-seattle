@@ -16,16 +16,25 @@ function parseDuration(iso: string): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-export const GET: APIRoute = async () => {
+export const GET: APIRoute = async ({ request }) => {
+  const url = new URL(request.url);
+  const pageToken = url.searchParams.get('pageToken') ?? '';
+  const maxResults = Math.min(parseInt(url.searchParams.get('maxResults') ?? '6'), 24);
   const key = YOUTUBE_API_KEY;
 
-  const playlistRes = await fetch(
-    `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${PLAYLIST_ID}&maxResults=6&key=${key}`
-  );
+  const playlistUrl = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
+  playlistUrl.searchParams.set('part', 'snippet');
+  playlistUrl.searchParams.set('playlistId', PLAYLIST_ID);
+  playlistUrl.searchParams.set('maxResults', String(maxResults));
+  playlistUrl.searchParams.set('key', key);
+  if (pageToken) playlistUrl.searchParams.set('pageToken', pageToken);
+
+  const playlistRes = await fetch(playlistUrl.toString());
   if (!playlistRes.ok) {
     return new Response(JSON.stringify({ error: 'Failed to fetch playlist' }), { status: 502 });
   }
-  const { items } = await playlistRes.json();
+  const playlistData = await playlistRes.json();
+  const { items, nextPageToken = null, prevPageToken = null } = playlistData;
 
   const videoIds = items.map(({ snippet }: any) => snippet.resourceId.videoId).join(',');
   const detailsRes = await fetch(
@@ -47,12 +56,11 @@ export const GET: APIRoute = async () => {
       title: snippet.title,
       publishedAt: snippet.publishedAt,
       thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-      href: `https://www.youtube.com/watch?v=${videoId}`,
       duration: isUpcoming ? 'Upcoming' : (detail ? parseDuration(detail.contentDetails.duration) : ''),
     };
   });
 
-  return new Response(JSON.stringify(sermons), {
+  return new Response(JSON.stringify({ sermons, nextPageToken, prevPageToken }), {
     headers: {
       'Content-Type': 'application/json',
       'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=86400',
