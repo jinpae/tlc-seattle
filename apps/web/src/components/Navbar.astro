@@ -102,12 +102,15 @@ const navLinks = [
 
   function initMobileMenu() {
     const toggle = document.getElementById('menu-toggle');
+    if (!toggle || toggle.dataset.menuInit) return;
+    toggle.dataset.menuInit = '1';
+
     const backdrop = document.getElementById('mobile-backdrop');
     const clip = document.getElementById('mobile-clip');
     const menu = document.getElementById('mobile-menu');
     const iconOpen = document.getElementById('icon-open');
     const iconClose = document.getElementById('icon-close');
-    if (!toggle || !backdrop || !clip || !menu || !iconOpen || !iconClose) return;
+    if (!backdrop || !clip || !menu || !iconOpen || !iconClose) return;
 
     function openMenu() {
       backdrop.classList.remove('hidden');
