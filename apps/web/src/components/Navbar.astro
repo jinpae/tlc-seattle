@@ -29,7 +29,7 @@ const navLinks = [
       <img src="/images/logo.svg" alt="시애틀 참빛교회 로고" class="h-[40px] w-auto" />
     </a>
 
-    <!-- Nav links -->
+    <!-- Desktop nav links -->
     <nav class="hidden md:flex items-center gap-8">
       {navLinks.map(link => (
         <a
@@ -41,18 +41,52 @@ const navLinks = [
       ))}
     </nav>
 
-    <!-- Mobile menu button (placeholder) -->
-    <button class="md:hidden p-2 text-gray-600" aria-label="메뉴 열기">
-      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- Mobile toggle button -->
+    <button
+      id="menu-toggle"
+      class="md:hidden p-2 text-gray-600"
+      aria-label="메뉴 열기"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+    >
+      <svg id="icon-open" class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+      <svg id="icon-close" class="w-9 h-9 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
   </div>
 </header>
 
+<!-- Backdrop (below navbar) -->
+<div
+  id="mobile-backdrop"
+  class="fixed top-20 inset-x-0 bottom-0 bg-black/40 z-40 hidden md:hidden"
+  aria-hidden="true"
+></div>
+
+<!-- Clip wrapper: overflow-hidden creates the slide-from-top effect -->
+<div id="mobile-clip" class="fixed top-20 left-0 right-0 z-40 overflow-hidden pointer-events-none md:hidden">
+  <nav
+    id="mobile-menu"
+    class="-translate-y-full pointer-events-none transition-transform duration-300 ease-in-out bg-white"
+    aria-hidden="true"
+  >
+    <div class="flex flex-col divide-y divide-gray-100 px-6 py-2">
+      {navLinks.map(link => (
+        <a
+          href={link.href}
+          class="text-xl font-bold text-gray-700 hover:text-gray-900 transition-colors py-4"
+        >
+          {link.label}
+        </a>
+      ))}
+    </div>
+  </nav>
+</div>
+
 <script>
-  // Re-query on every call: client-side navigation swaps in a new <header>,
-  // so a captured reference would go stale after the first transition.
   function updateNavbar() {
     const navbar = document.getElementById('navbar');
     if (navbar?.dataset.variant !== 'hero') return;
@@ -66,7 +100,51 @@ const navLinks = [
     navbar.classList.toggle('shadow-md', scrolled);
   }
 
+  function initMobileMenu() {
+    const toggle = document.getElementById('menu-toggle');
+    const backdrop = document.getElementById('mobile-backdrop');
+    const clip = document.getElementById('mobile-clip');
+    const menu = document.getElementById('mobile-menu');
+    const iconOpen = document.getElementById('icon-open');
+    const iconClose = document.getElementById('icon-close');
+    if (!toggle || !backdrop || !clip || !menu || !iconOpen || !iconClose) return;
+
+    function openMenu() {
+      backdrop.classList.remove('hidden');
+      clip.classList.remove('pointer-events-none');
+      menu.classList.remove('-translate-y-full', 'pointer-events-none');
+      menu.classList.add('shadow-lg');
+      menu.setAttribute('aria-hidden', 'false');
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', '메뉴 닫기');
+      iconOpen.classList.add('hidden');
+      iconClose.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeMenu() {
+      backdrop.classList.add('hidden');
+      clip.classList.add('pointer-events-none');
+      menu.classList.add('-translate-y-full', 'pointer-events-none');
+      menu.classList.remove('shadow-lg');
+      menu.setAttribute('aria-hidden', 'true');
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', '메뉴 열기');
+      iconOpen.classList.remove('hidden');
+      iconClose.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
+    toggle.addEventListener('click', () => {
+      toggle.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
+    });
+    backdrop.addEventListener('click', closeMenu);
+    menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+  }
+
   updateNavbar();
-  document.addEventListener('astro:page-load', updateNavbar);
+  initMobileMenu();
+  document.addEventListener('astro:page-load', () => { updateNavbar(); initMobileMenu(); });
   window.addEventListener('scroll', updateNavbar, { passive: true });
 </script>
