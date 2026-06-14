@@ -1,11 +1,14 @@
-export const albumsQuery = `*[_type == "album"] | order(date desc) {
-  _id,
-  title,
-  slug,
-  date,
-  description,
-  "photoCount": count(photos),
-  "coverImage": coverImage.asset->{ url, metadata { dimensions } }
+export const albumsPaginatedQuery = `{
+  "items": *[_type == "album"] | order(date desc) [$from...$to] {
+    _id,
+    title,
+    slug,
+    date,
+    description,
+    "photoCount": count(photos),
+    "coverImage": coverImage.asset->{ url, metadata { dimensions } }
+  },
+  "total": count(*[_type == "album"])
 }`
 
 export const albumBySlugQuery = `*[_type == "album" && slug.current == $slug][0] {
