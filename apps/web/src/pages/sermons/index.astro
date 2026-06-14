@@ -31,6 +31,15 @@ import Footer from '../../components/Footer.astro';
         ))}
       </div>
 
+      <div id="pagination-placeholder" class="mt-10 flex justify-end">
+        <span class="inline-flex items-center gap-1.5 text-[18px] text-gray-300 select-none">
+          다음
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </span>
+      </div>
+
       <div id="pagination" class="hidden mt-10 items-center justify-end gap-6">
         <button
           id="prev-btn"
@@ -148,6 +157,7 @@ import Footer from '../../components/Footer.astro';
 
       await preloadImages(data.sermons.map((s: any) => s.thumbnail));
       grid.innerHTML = data.sermons.map(s => cardHTML(s, pageToken)).join('');
+      document.getElementById('pagination-placeholder')?.remove();
       pagination.classList.remove('hidden');
       pagination.classList.add('flex');
 
