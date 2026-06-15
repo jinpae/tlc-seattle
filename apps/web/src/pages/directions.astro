@@ -4,9 +4,9 @@ import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
 import { Image } from 'astro:assets';
 import locationImg from '../assets/location.webp';
+import { church } from '../lib/config';
 
-const address = '19010 5th Ave NE, Shoreline, WA 98155';
-const mapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`;
+const mapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${church.street}, ${church.cityStateZip}`)}`;
 ---
 
 <Layout title="오시는 길 | 시애틀 참빛교회">
@@ -33,9 +33,9 @@ const mapsDirectionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${
       <div>
         <h2 class="text-[17px] md:text-[20px] font-bold text-gray-700 mb-3">주소</h2>
         <p class="text-[17px] md:text-[20px] text-gray-700 leading-relaxed">
-          19010 5th Ave NE<br />
-          Shoreline, WA 98155<br />
-          <a href="tel:+12067351605" class="hover:text-gray-900 transition-colors">(206) 735-1605</a>
+          {church.street}<br />
+          {church.cityStateZip}<br />
+          <a href={`tel:${church.phoneTel}`} class="hover:text-gray-900 transition-colors">{church.phone}</a>
         </p>
 
         <a
