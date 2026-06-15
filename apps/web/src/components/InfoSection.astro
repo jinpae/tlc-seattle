@@ -1,16 +1,13 @@
 ---
 import { client } from '../lib/sanity';
 
-const schedule = [
-  { name: '주일 예배 (본당)',       time: '주일 오후 1:15'   },
-  { name: '새벽 예배 (Zoom)',       time: '화~금 오전 6:30' },
-  { name: '수요 성경공부 (Zoom)',   time: '수 저녁 7:30'    },
-  { name: '소그룹 모임',           time: '주중'            },
-];
-
-const newsItems: { title: string; slug: string; date: string }[] = await client.fetch(
-  `*[_type == "news"] | order(date desc) [0...5] { title, "slug": slug.current, date }`
-);
+const { schedule, newsItems }: {
+  schedule: { name: string; time: string; place?: string }[];
+  newsItems: { title: string; slug: string; date: string }[];
+} = await client.fetch(`{
+  "schedule": *[_type == "gathering" && showOnHomepage == true] | order(orderRank asc) { name, time, place },
+  "newsItems": *[_type == "news"] | order(date desc) [0...5] { title, "slug": slug.current, date }
+}`);
 ---
 
 <section class="bg-white py-16 md:py-24">
@@ -30,8 +27,8 @@ const newsItems: { title: string; slug: string; date: string }[] = await client.
         <div class="divide-y divide-gray-200 border-b border-gray-200">
           {schedule.map(item => (
             <div class="flex items-center justify-between py-4">
-              <span class="text-gray-600 text-[20px]">{item.name}</span>
-              <span class="text-gray-500 text-[20px] font-light tabular-nums">{item.time}</span>
+              <span class="text-gray-600 text-[20px]">{item.name}{item.place ? ` (${item.place})` : ''}</span>
+              <span class="text-gray-500 text-[20px] font-light tabular-nums shrink-0">{item.time}</span>
             </div>
           ))}
         </div>

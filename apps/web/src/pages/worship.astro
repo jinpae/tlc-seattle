@@ -2,58 +2,12 @@
 import Layout from '../layouts/Layout.astro';
 import Navbar from '../components/Navbar.astro';
 import Footer from '../components/Footer.astro';
+import { client } from '../lib/sanity';
 
-const rows = [
-  {
-    name: '주일 예배',
-    time: '주일 오후 1:15',
-    place: '교회 본당',
-    note: '예배 후 다과 및 식사, 친교',
-    detail: '교회 가족들이 모여 함께 드리는 예배입니다. 예배 후에는 다과 및 식사와 함께 성도 간의 친교 시간을 갖습니다.',
-  },
-  {
-    name: '주중 새벽 예배',
-    time: '화~금 오전 6:30',
-    place: 'Zoom',
-    note: '매일성경 묵상 및 중보기도',
-    detail: "성서유니온의 ‘매일성경’ 진도에 따라 말씀을 나누고 개인 및 중보기도의 시간을 갖습니다. 이후 간단한 아침 식사와 함께 성도 간의 교제를 나누는 은혜로운 시간입니다.",
-  },
-  {
-    name: '수요 성경공부',
-    time: '수요일 오후 7:30',
-    place: 'Zoom',
-    note: '고린도후서 공부',
-    detail: '현재 고린도후서 말씀을 함께 배우고 있습니다. Zoom으로 진행되며, 참석을 원하시는 분은 교회로 문의해 주시기 바랍니다.',
-  },
-  {
-    name: '소그룹 모임',
-    time: '주일 또는 주중',
-    place: '지역별 모임',
-    note: '말씀 나눔과 교제',
-    detail: '주일 또는 주중에 지역별로 모여 소그룹으로 말씀을 나누고 기도하며 성도 간의 교제를 나눕니다.',
-  },
-  {
-    name: '새생명반 성경공부',
-    time: '별도 안내 (4주 과정)',
-    place: '교회',
-    note: '등록 교인 대상',
-    detail: '교회 등록을 마치신 분들을 위한 4주 동안 복음을 깊이 있게 배우며 예수님과의 인격적인 만남을 나누는 시간입니다.',
-  },
-  {
-    name: '새가족반 성경공부',
-    time: '별도 안내 (2주 과정)',
-    place: '교회',
-    note: '새생명반 수료자 대상',
-    detail: '새생명반을 마치신 분들을 위한 2주 과정으로, 교회론과 참빛교회에 대해 배우는 시간입니다.',
-  },
-  {
-    name: '일대일 성경공부',
-    time: '필요 시',
-    place: '개별 진행',
-    note: '개인 맞춤 성경공부',
-    detail: '필요에 따라 일대일로 성경공부를 진행합니다.',
-  },
-];
+const rows: { name: string; time: string; place?: string; detail?: string }[] =
+  await client.fetch(
+    `*[_type == "gathering"] | order(orderRank asc) { name, time, place, detail }`
+  );
 ---
 
 <Layout title="예배 및 모임 | 시애틀 참빛교회">
@@ -79,31 +33,35 @@ const rows = [
           <tbody>
             {rows.map((row, i) => (
               <Fragment>
-                <tr class="border-b border-gray-200 cursor-pointer hover:bg-gray-50" data-toggle data-index={i} aria-controls={`detail-${i}`}>
+                <tr class={`border-b border-gray-200${row.detail ? ' cursor-pointer hover:bg-gray-50' : ''}`} data-toggle={row.detail ? '' : undefined} data-index={i} aria-controls={`detail-${i}`}>
                   <td class="py-4 md:py-6 pr-6 md:pr-12 text-gray-900 md:whitespace-nowrap">
                     <button
                       class="flex items-center gap-2 font-medium text-left pointer-events-none"
-                      aria-expanded="false"
+                      aria-expanded={row.detail ? 'false' : undefined}
                       aria-controls={`detail-${i}`}
                     >
-                      <svg
-                        class="w-4 h-4 shrink-0 text-gray-400 transition-transform duration-200"
-                        data-chevron
-                        fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
-                      >
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
-                      </svg>
+                      {row.detail && (
+                        <svg
+                          class="w-4 h-4 shrink-0 text-gray-400 transition-transform duration-200"
+                          data-chevron
+                          fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+                        >
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
+                        </svg>
+                      )}
                       {row.name}
                     </button>
                   </td>
                   <td class="py-4 md:py-6 pr-6 md:pr-12 text-gray-600 md:whitespace-nowrap">{row.time}</td>
                   <td class="py-4 md:py-6 pr-6 md:pr-12 text-gray-600 md:whitespace-nowrap">{row.place}</td>
                 </tr>
-                <tr id={`detail-${i}`} class="hidden border-b border-gray-200">
-                  <td colspan="3" class="px-6 md:px-8 py-4 md:py-5 font-serif text-[16px] md:text-[18px] text-gray-600 leading-relaxed">
-                    {row.detail}
-                  </td>
-                </tr>
+                {row.detail && (
+                  <tr id={`detail-${i}`} class="hidden border-b border-gray-200">
+                    <td colspan="3" class="px-6 md:px-8 py-4 md:py-5 font-serif text-[16px] md:text-[18px] text-gray-600 leading-relaxed">
+                      {row.detail}
+                    </td>
+                  </tr>
+                )}
               </Fragment>
             ))}
           </tbody>
