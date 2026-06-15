@@ -76,6 +76,8 @@ const rows: { name: string; time: string; place?: string; detail?: string }[] =
 <script>
   function initAccordions() {
     document.querySelectorAll<HTMLTableRowElement>('tr[data-toggle]').forEach(row => {
+      if (row.dataset.accordionInit) return;
+      row.dataset.accordionInit = '1';
       row.addEventListener('click', () => {
         const btn = row.querySelector<HTMLButtonElement>('button');
         const expanded = btn?.getAttribute('aria-expanded') === 'true';
@@ -91,4 +93,5 @@ const rows: { name: string; time: string; place?: string; detail?: string }[] =
   }
 
   document.addEventListener('astro:page-load', initAccordions);
+  initAccordions();
 </script>
