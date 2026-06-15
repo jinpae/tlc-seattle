@@ -17,7 +17,7 @@ const navLinks = [
   id="navbar"
   data-variant={variant}
   class:list={[
-    'fixed top-0 left-0 right-0 z-[60] border-b transition-[background-color,border-color,box-shadow] duration-300',
+    'fixed top-0 left-0 right-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300',
     variant === 'page'
       ? 'bg-white/95 backdrop-blur-sm border-gray-100 shadow-md'
       : 'bg-[#f7f5f2] border-transparent',
@@ -49,11 +49,8 @@ const navLinks = [
       aria-expanded="false"
       aria-controls="mobile-menu"
     >
-      <svg id="icon-open" class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-      <svg id="icon-close" class="w-9 h-9 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
   </div>
@@ -62,17 +59,24 @@ const navLinks = [
 <!-- Backdrop -->
 <div
   id="mobile-backdrop"
-  class="fixed inset-0 bg-black/40 z-40 hidden md:hidden"
+  class="mobile-backdrop fixed inset-0 bg-black/40 z-[55] md:hidden"
   aria-hidden="true"
 ></div>
 
 <!-- Drawer (slides in from right) -->
 <nav
   id="mobile-menu"
-  class="fixed top-0 right-0 h-full w-72 bg-white z-50 translate-x-full transition-transform duration-300 ease-in-out pointer-events-none md:hidden shadow-xl hidden"
+  class="mobile-drawer fixed top-0 right-0 h-[100dvh] w-72 bg-white z-[60] pointer-events-none md:hidden shadow-xl"
   aria-hidden="true"
 >
-  <div class="flex flex-col divide-y divide-gray-100 px-6 pt-24">
+  <div class="flex items-center justify-end px-4 h-20">
+    <button id="drawer-close" class="p-2 text-gray-600" aria-label="메뉴 닫기">
+      <svg class="w-9 h-9" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+  </div>
+  <div class="flex flex-col divide-y divide-gray-100 px-6">
     {navLinks.map(link => (
       <a
         href={link.href}
@@ -105,42 +109,31 @@ const navLinks = [
 
     const backdrop = document.getElementById('mobile-backdrop');
     const menu = document.getElementById('mobile-menu');
-    const iconOpen = document.getElementById('icon-open');
-    const iconClose = document.getElementById('icon-close');
-    if (!backdrop || !menu || !iconOpen || !iconClose) return;
-
-    let closeTimer: ReturnType<typeof setTimeout> | undefined;
+    const drawerClose = document.getElementById('drawer-close');
+    if (!backdrop || !menu) return;
 
     function openMenu() {
-      clearTimeout(closeTimer);
-      backdrop.classList.remove('hidden');
-      menu.classList.remove('hidden');
-      requestAnimationFrame(() => {
-        menu.classList.remove('translate-x-full', 'pointer-events-none');
-      });
+      backdrop.classList.add('open');
+      menu.classList.add('open');
       menu.setAttribute('aria-hidden', 'false');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', '메뉴 닫기');
-      iconOpen.classList.add('hidden');
-      iconClose.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
 
     function closeMenu() {
-      backdrop.classList.add('hidden');
-      menu.classList.add('translate-x-full', 'pointer-events-none');
+      backdrop.classList.remove('open');
+      menu.classList.remove('open');
       menu.setAttribute('aria-hidden', 'true');
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', '메뉴 열기');
-      iconOpen.classList.remove('hidden');
-      iconClose.classList.add('hidden');
       document.body.style.overflow = '';
-      closeTimer = setTimeout(() => menu.classList.add('hidden'), 300);
     }
 
     toggle.addEventListener('click', () => {
       toggle.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
     });
+    drawerClose?.addEventListener('click', closeMenu);
     backdrop.addEventListener('click', closeMenu);
     menu.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
     document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
@@ -151,3 +144,36 @@ const navLinks = [
   document.addEventListener('astro:page-load', () => { updateNavbar(); initMobileMenu(); });
   window.addEventListener('scroll', updateNavbar, { passive: true });
 </script>
+
+<style>
+  .mobile-backdrop {
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.19s 0.16s cubic-bezier(0.5, 0, 1, 1),
+      visibility 0s 0.35s linear;
+  }
+  .mobile-backdrop.open {
+    opacity: 1;
+    visibility: visible;
+    transition:
+      opacity 0.3s 0s cubic-bezier(0, 0, 0.4, 1);
+  }
+
+  .mobile-drawer {
+    transform: translateX(100%);
+    visibility: hidden;
+    pointer-events: none;
+    transition:
+      transform 350ms cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s 350ms linear;
+  }
+  .mobile-drawer.open {
+    transform: translateX(0);
+    visibility: visible;
+    pointer-events: auto;
+    transition:
+      transform 350ms cubic-bezier(0.4, 0, 0.2, 1),
+      visibility 0s 0s linear;
+  }
+</style>
