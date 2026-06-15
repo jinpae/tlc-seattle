@@ -67,6 +67,7 @@ const navLinks = [
 <nav
   id="mobile-menu"
   class="mobile-drawer fixed top-0 right-0 h-[100dvh] w-72 bg-white z-[60] pointer-events-none md:hidden shadow-xl"
+  style="display:none"
   aria-hidden="true"
 >
   <div class="flex items-center justify-end px-4 h-20">
@@ -112,7 +113,15 @@ const navLinks = [
     const drawerClose = document.getElementById('drawer-close');
     if (!backdrop || !menu) return;
 
+    menu.addEventListener('transitionend', (e) => {
+      if (e.propertyName === 'transform' && !menu.classList.contains('open')) {
+        menu.style.display = 'none';
+      }
+    });
+
     function openMenu() {
+      menu.style.display = '';
+      menu.offsetWidth; // flush pending styles so transition fires from initial state
       backdrop.classList.add('open');
       menu.classList.add('open');
       menu.setAttribute('aria-hidden', 'false');
