@@ -73,16 +73,16 @@ const rows: { name: string; time: string; place?: string; detail?: string }[] =
   <Footer />
 </Layout>
 
-<script>
+<script is:inline>
   function initAccordions() {
-    document.querySelectorAll<HTMLTableRowElement>('tr[data-toggle]').forEach(row => {
+    document.querySelectorAll('tr[data-toggle]').forEach(row => {
       if (row.dataset.accordionInit) return;
       row.dataset.accordionInit = '1';
       row.addEventListener('click', () => {
-        const btn = row.querySelector<HTMLButtonElement>('button');
+        const btn = row.querySelector('button');
         const expanded = btn?.getAttribute('aria-expanded') === 'true';
-        const detailRow = document.getElementById(row.getAttribute('aria-controls')!);
-        const chevron = row.querySelector<SVGElement>('[data-chevron]');
+        const detailRow = document.getElementById(row.getAttribute('aria-controls'));
+        const chevron = row.querySelector('[data-chevron]');
 
         btn?.setAttribute('aria-expanded', String(!expanded));
         detailRow?.classList.toggle('hidden', expanded);
@@ -93,5 +93,4 @@ const rows: { name: string; time: string; place?: string; detail?: string }[] =
   }
 
   document.addEventListener('astro:page-load', initAccordions);
-  initAccordions();
 </script>
