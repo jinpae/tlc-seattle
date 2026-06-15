@@ -69,7 +69,7 @@ const navLinks = [
 <!-- Drawer (slides in from right) -->
 <nav
   id="mobile-menu"
-  class="fixed top-0 right-0 h-full w-72 bg-white z-50 translate-x-full transition-transform duration-300 ease-in-out pointer-events-none md:hidden shadow-xl"
+  class="fixed top-0 right-0 h-full w-72 bg-white z-50 translate-x-full transition-transform duration-300 ease-in-out pointer-events-none md:hidden shadow-xl hidden"
   aria-hidden="true"
 >
   <div class="flex flex-col divide-y divide-gray-100 px-6 pt-24">
@@ -109,9 +109,15 @@ const navLinks = [
     const iconClose = document.getElementById('icon-close');
     if (!backdrop || !menu || !iconOpen || !iconClose) return;
 
+    let closeTimer: ReturnType<typeof setTimeout> | undefined;
+
     function openMenu() {
+      clearTimeout(closeTimer);
       backdrop.classList.remove('hidden');
-      menu.classList.remove('translate-x-full', 'pointer-events-none');
+      menu.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        menu.classList.remove('translate-x-full', 'pointer-events-none');
+      });
       menu.setAttribute('aria-hidden', 'false');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', '메뉴 닫기');
@@ -129,6 +135,7 @@ const navLinks = [
       iconOpen.classList.remove('hidden');
       iconClose.classList.add('hidden');
       document.body.style.overflow = '';
+      closeTimer = setTimeout(() => menu.classList.add('hidden'), 300);
     }
 
     toggle.addEventListener('click', () => {
