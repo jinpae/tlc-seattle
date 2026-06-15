@@ -96,6 +96,7 @@ import Footer from '../../components/Footer.astro';
 <script>
   let nextToken: string | null = null;
   let prevToken: string | null = null;
+  let loading = false;
 
   function preloadImages(urls: string[]): Promise<void> {
     const loads = Promise.all(urls.map(src => new Promise<void>(resolve => {
@@ -137,11 +138,13 @@ import Footer from '../../components/Footer.astro';
   }
 
   async function loadPage(pageToken: string) {
+    if (loading) return;
+    loading = true;
     const grid = document.getElementById('sermons-grid');
     const pagination = document.getElementById('pagination');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
-    if (!grid || !pagination || !prevBtn || !nextBtn) return;
+    if (!grid || !pagination || !prevBtn || !nextBtn) { loading = false; return; }
 
     try {
       const url = new URL('/api/sermons.json', window.location.origin);
@@ -178,6 +181,8 @@ import Footer from '../../components/Footer.astro';
       }
     } catch {
       grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-12">설교를 불러오지 못했습니다.</p>';
+    } finally {
+      loading = false;
     }
   }
 
@@ -191,7 +196,7 @@ import Footer from '../../components/Footer.astro';
       params.set('pageToken', prevToken);
       history.pushState({}, '', `?${params}`);
       loadPage(prevToken);
-      window.scrollTo({ top: 0, behavior: window.innerWidth < 768 ? 'instant' : 'smooth' });
+      window.scrollTo({ top: 0 });
     });
 
     document.getElementById('next-btn')?.addEventListener('click', () => {
@@ -200,9 +205,10 @@ import Footer from '../../components/Footer.astro';
       params.set('pageToken', nextToken);
       history.pushState({}, '', `?${params}`);
       loadPage(nextToken);
-      window.scrollTo({ top: 0, behavior: window.innerWidth < 768 ? 'instant' : 'smooth' });
+      window.scrollTo({ top: 0 });
     });
   }
 
   document.addEventListener('astro:page-load', init);
+  init();
 </script>
