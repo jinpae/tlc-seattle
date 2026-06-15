@@ -41,7 +41,7 @@ if (!item) {
         </p>
 
         {item.body && item.body.length > 0
-          ? <PortableText value={item.body} />
+          ? <PortableText value={item.body} className="text-[17px] md:text-[20px] leading-relaxed text-gray-600" />
           : <p class="text-gray-400">본문이 없습니다.</p>
         }
 

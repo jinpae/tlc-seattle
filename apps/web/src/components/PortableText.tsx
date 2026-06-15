@@ -3,7 +3,7 @@ import type { PortableTextComponents } from '@portabletext/react';
 
 const components: PortableTextComponents = {
   block: {
-    normal: ({ children }) => <p className="mb-4 last:mb-0">{children}</p>,
+    normal: ({ children }) => <p className="mb-6 last:mb-0">{children}</p>,
     h2: ({ children }) => (
       <h2 className="text-xl font-bold text-gray-900 mt-8 mb-3">{children}</h2>
     ),
@@ -14,7 +14,7 @@ const components: PortableTextComponents = {
       <blockquote className="border-l-2 border-gray-300 pl-5 text-gray-500 my-5">
         {children}
       </blockquote>
-    )
+    ),
   },
   marks: {
     strong: ({ children }) => <strong className="font-bold">{children}</strong>,
@@ -28,7 +28,7 @@ const components: PortableTextComponents = {
       >
         {children}
       </a>
-    )
+    ),
   },
   list: {
     bullet: ({ children }) => (
@@ -36,21 +36,22 @@ const components: PortableTextComponents = {
     ),
     number: ({ children }) => (
       <ol className="list-decimal pl-5 mb-4 space-y-1">{children}</ol>
-    )
+    ),
   },
   listItem: {
     bullet: ({ children }) => <li>{children}</li>,
-    number: ({ children }) => <li>{children}</li>
-  }
+    number: ({ children }) => <li>{children}</li>,
+  },
 };
 
 interface Props {
   value: unknown[];
+  className?: string;
 }
 
-export default function PortableText({ value }: Props) {
+export default function PortableText({ value, className }: Props) {
   return (
-    <div className="text-[17px] md:text-[20px] leading-relaxed text-gray-700">
+    <div className={className}>
       <BasePortableText value={value} components={components} />
     </div>
   );
