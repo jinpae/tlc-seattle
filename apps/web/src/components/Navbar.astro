@@ -60,6 +60,7 @@ const navLinks = [
 <div
   id="mobile-backdrop"
   class="mobile-backdrop fixed inset-0 bg-black/40 z-[55] md:hidden"
+  style="display:none"
   aria-hidden="true"
 ></div>
 
@@ -119,8 +120,15 @@ const navLinks = [
       }
     });
 
+    backdrop.addEventListener('transitionend', (e) => {
+      if (e.propertyName === 'opacity' && !backdrop.classList.contains('open')) {
+        backdrop.style.display = 'none';
+      }
+    });
+
     function openMenu() {
       menu.style.display = '';
+      backdrop.style.display = '';
       menu.offsetWidth; // flush pending styles so transition fires from initial state
       backdrop.classList.add('open');
       menu.classList.add('open');
