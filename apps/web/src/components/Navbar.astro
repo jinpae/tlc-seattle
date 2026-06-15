@@ -17,7 +17,7 @@ const navLinks = [
   id="navbar"
   data-variant={variant}
   class:list={[
-    'fixed top-0 left-0 right-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300',
+    'fixed top-0 left-0 right-0 z-[60] border-b transition-[background-color,border-color,box-shadow] duration-300',
     variant === 'page'
       ? 'bg-white/95 backdrop-blur-sm border-gray-100 shadow-md'
       : 'bg-[#f7f5f2] border-transparent',
@@ -59,32 +59,30 @@ const navLinks = [
   </div>
 </header>
 
-<!-- Backdrop (below navbar) -->
+<!-- Backdrop -->
 <div
   id="mobile-backdrop"
-  class="fixed top-20 inset-x-0 bottom-0 bg-black/40 z-40 hidden md:hidden"
+  class="fixed inset-0 bg-black/40 z-40 hidden md:hidden"
   aria-hidden="true"
 ></div>
 
-<!-- Clip wrapper: overflow-hidden creates the slide-from-top effect -->
-<div id="mobile-clip" class="fixed top-20 left-0 right-0 z-40 overflow-hidden pointer-events-none md:hidden">
-  <nav
-    id="mobile-menu"
-    class="-translate-y-full pointer-events-none transition-transform duration-300 ease-in-out bg-white"
-    aria-hidden="true"
-  >
-    <div class="flex flex-col divide-y divide-gray-100 px-6 py-2">
-      {navLinks.map(link => (
-        <a
-          href={link.href}
-          class="text-xl font-bold text-gray-700 hover:text-gray-900 transition-colors py-4"
-        >
-          {link.label}
-        </a>
-      ))}
-    </div>
-  </nav>
-</div>
+<!-- Drawer (slides in from right) -->
+<nav
+  id="mobile-menu"
+  class="fixed top-0 right-0 h-full w-72 bg-white z-50 translate-x-full transition-transform duration-300 ease-in-out pointer-events-none md:hidden shadow-xl"
+  aria-hidden="true"
+>
+  <div class="flex flex-col divide-y divide-gray-100 px-6 pt-24">
+    {navLinks.map(link => (
+      <a
+        href={link.href}
+        class="text-xl font-bold text-gray-700 hover:text-gray-900 transition-colors py-4"
+      >
+        {link.label}
+      </a>
+    ))}
+  </div>
+</nav>
 
 <script>
   function updateNavbar() {
@@ -106,17 +104,14 @@ const navLinks = [
     toggle.dataset.menuInit = '1';
 
     const backdrop = document.getElementById('mobile-backdrop');
-    const clip = document.getElementById('mobile-clip');
     const menu = document.getElementById('mobile-menu');
     const iconOpen = document.getElementById('icon-open');
     const iconClose = document.getElementById('icon-close');
-    if (!backdrop || !clip || !menu || !iconOpen || !iconClose) return;
+    if (!backdrop || !menu || !iconOpen || !iconClose) return;
 
     function openMenu() {
       backdrop.classList.remove('hidden');
-      clip.classList.remove('pointer-events-none');
-      menu.classList.remove('-translate-y-full', 'pointer-events-none');
-      menu.classList.add('shadow-lg');
+      menu.classList.remove('translate-x-full', 'pointer-events-none');
       menu.setAttribute('aria-hidden', 'false');
       toggle.setAttribute('aria-expanded', 'true');
       toggle.setAttribute('aria-label', '메뉴 닫기');
@@ -127,9 +122,7 @@ const navLinks = [
 
     function closeMenu() {
       backdrop.classList.add('hidden');
-      clip.classList.add('pointer-events-none');
-      menu.classList.add('-translate-y-full', 'pointer-events-none');
-      menu.classList.remove('shadow-lg');
+      menu.classList.add('translate-x-full', 'pointer-events-none');
       menu.setAttribute('aria-hidden', 'true');
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', '메뉴 열기');
