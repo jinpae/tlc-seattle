@@ -29,7 +29,7 @@ export default function PhotoGrid({ photos }: Props) {
           <button
             key={photo.id}
             onClick={() => setIndex(i)}
-            className="aspect-square overflow-hidden group"
+            className="aspect-square overflow-hidden group cursor-pointer"
           >
             <img
               src={`${photo.url}?w=500&h=500&fit=crop&auto=format&q=80`}
@@ -46,6 +46,7 @@ export default function PhotoGrid({ photos }: Props) {
         slides={slides}
         close={() => setIndex(-1)}
         on={{ view: ({ index: i }) => setIndex(i) }}
+        animation={{ fade: 0, swipe: 0 }}
       />
     </>
   );
