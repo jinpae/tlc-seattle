@@ -2,8 +2,9 @@
 interface Props {
   currentSection: string;
   pageTitle: string;
+  description?: string;
 }
-const { currentSection, pageTitle } = Astro.props;
+const { currentSection, pageTitle, description } = Astro.props;
 
 import Layout from '../layouts/Layout.astro';
 import Navbar from './Navbar.astro';
@@ -16,7 +17,7 @@ const subSections = [
 ];
 ---
 
-<Layout title={`${pageTitle} | 시애틀 참빛교회`}>
+<Layout title={`${pageTitle} | 시애틀 참빛교회`} description={description}>
   <Navbar />
 
   <main class="bg-white flex-1 pt-20">

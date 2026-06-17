@@ -4,8 +4,15 @@ import '../styles/global.css';
 
 interface Props {
   title?: string;
+  description?: string;
 }
-const { title = '시애틀 참빛교회' } = Astro.props;
+
+const {
+  title = '시애틀 참빛교회',
+  description = '워싱턴 주 쇼어라인에 위치한 한인 침례교회입니다. 주일 예배, 설교 영상, 교회 소식을 확인하세요.',
+} = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 
 <!doctype html>
@@ -13,10 +20,20 @@ const { title = '시애틀 참빛교회' } = Astro.props;
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:locale" content="ko_KR" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
     <title>{title}</title>
 <ClientRouter />
     <script>

@@ -28,7 +28,7 @@ const fromToken = Astro.url.searchParams.get('from');
 const backHref = fromToken ? `/sermons?pageToken=${encodeURIComponent(fromToken)}` : '/sermons';
 ---
 
-<Layout title={`${title} | 시애틀 참빛교회`}>
+<Layout title={`${title} | 시애틀 참빛교회`} description={`${title} — 시애틀 참빛교회 설교 영상입니다.`}>
   <Navbar />
 
   <main class="bg-white flex-1 pt-20">
