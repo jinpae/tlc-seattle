@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Lightbox from 'yet-another-react-lightbox';
+import Zoom from 'yet-another-react-lightbox/plugins/zoom';
 import 'yet-another-react-lightbox/styles.css';
 
 interface Photo {
@@ -46,7 +47,10 @@ export default function PhotoGrid({ photos }: Props) {
         slides={slides}
         close={() => setIndex(-1)}
         on={{ view: ({ index: i }) => setIndex(i) }}
-        animation={{ fade: 0, swipe: 0 }}
+        animation={{ fade: 0, swipe: 500, navigation: 0 }}
+        plugins={[Zoom]}
+        zoom={{ pinchZoomDistanceFactor: 100, doubleTapDelay: 300, doubleClickDelay: 500 }}
+        render={{ buttonZoom: () => null }}
       />
     </>
   );
