@@ -7,6 +7,16 @@ import Footer from '../../components/Footer.astro';
 <Layout title="설교 | 시애틀 참빛교회" description="시애틀 참빛교회 설교 페이지입니다. 주일 예배와 새벽 예배 영상을 통해 하나님의 말씀을 나눕니다.">
   <Navbar />
 
+  <button
+    id="scroll-top-btn"
+    aria-label="맨 위로"
+    class="fixed bottom-6 right-6 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-500 shadow-sm opacity-0 translate-y-2 pointer-events-none transition-all duration-200"
+  >
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
+    </svg>
+  </button>
+
   <main class="bg-white flex-1 pt-20">
     <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
       <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
@@ -31,32 +41,47 @@ import Footer from '../../components/Footer.astro';
         ))}
       </div>
 
-      <div id="pagination-placeholder" class="mt-10 flex justify-end">
-        <span class="inline-flex items-center gap-1.5 text-[18px] text-gray-300 select-none">
-          다음
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-          </svg>
-        </span>
+      <!-- Desktop pagination -->
+      <div class="hidden md:block">
+        <div id="pagination-placeholder" class="mt-10 flex justify-end">
+          <span class="inline-flex items-center gap-1.5 text-[18px] text-gray-300 select-none">
+            다음
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </div>
+        <div id="pagination" class="hidden mt-10 items-center justify-end gap-6">
+          <button
+            id="prev-btn"
+            class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+            이전
+          </button>
+          <button
+            id="next-btn"
+            class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+          >
+            다음
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <div id="pagination" class="hidden mt-10 items-center justify-end gap-6">
+      <!-- Mobile load more -->
+      <div class="md:hidden mt-10 flex justify-center">
         <button
-          id="prev-btn"
-          class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
+          id="load-more-btn"
+          class="hidden items-center gap-2 bg-gray-900 text-white font-semibold text-lg px-[28px] py-[14px] rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
         >
+          더 보기
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-          </svg>
-          이전
-        </button>
-        <button
-          id="next-btn"
-          class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
-        >
-          다음
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
       </div>
@@ -97,6 +122,13 @@ import Footer from '../../components/Footer.astro';
   let nextToken: string | null = null;
   let prevToken: string | null = null;
   let loading = false;
+  let pendingBackNav = false;
+
+  document.addEventListener('astro:before-swap', (e: any) => {
+    if (e.to?.pathname === '/sermons' && e.from?.pathname?.startsWith('/sermons/')) {
+      pendingBackNav = true;
+    }
+  });
 
   function preloadImages(urls: string[]): Promise<void> {
     const loads = Promise.all(urls.map(src => new Promise<void>(resolve => {
@@ -137,13 +169,14 @@ import Footer from '../../components/Footer.astro';
       </a>`;
   }
 
-  async function loadPage(pageToken: string) {
+  async function loadPage(pageToken: string, append = false) {
     if (loading) return;
     loading = true;
     const grid = document.getElementById('sermons-grid');
     const pagination = document.getElementById('pagination');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
+    const loadMoreBtn = document.getElementById('load-more-btn');
     if (!grid || !pagination || !prevBtn || !nextBtn) { loading = false; return; }
 
     try {
@@ -159,7 +192,13 @@ import Footer from '../../components/Footer.astro';
       prevToken = data.prevPageToken;
 
       await preloadImages(data.sermons.map((s: any) => s.thumbnail));
-      grid.innerHTML = data.sermons.map(s => cardHTML(s, pageToken)).join('');
+      const cards = data.sermons.map((s: any) => cardHTML(s, pageToken)).join('');
+      if (append) {
+        grid.insertAdjacentHTML('beforeend', cards);
+      } else {
+        grid.innerHTML = cards;
+      }
+
       document.getElementById('pagination-placeholder')?.remove();
       pagination.classList.remove('hidden');
       pagination.classList.add('flex');
@@ -175,20 +214,85 @@ import Footer from '../../components/Footer.astro';
       if (nextToken) {
         nextBtn.classList.remove('hidden');
         nextBtn.classList.add('inline-flex');
+        loadMoreBtn?.classList.remove('hidden');
+        loadMoreBtn?.classList.add('inline-flex');
       } else {
         nextBtn.classList.add('hidden');
         nextBtn.classList.remove('inline-flex');
+        loadMoreBtn?.classList.add('hidden');
+        loadMoreBtn?.classList.remove('inline-flex');
       }
     } catch {
-      grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-12">설교를 불러오지 못했습니다.</p>';
+      if (!append) {
+        grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-12">설교를 불러오지 못했습니다.</p>';
+      }
     } finally {
       loading = false;
     }
   }
 
   function init() {
-    const pageToken = new URLSearchParams(window.location.search).get('pageToken') ?? '';
-    loadPage(pageToken);
+    if (!document.getElementById('sermons-grid')) return;
+
+    const isMobile = window.innerWidth < 768;
+    const savedHtml = sessionStorage.getItem('sermons-html');
+    const isBack = pendingBackNav;
+    pendingBackNav = false;
+    if (isBack && savedHtml && isMobile) {
+      const grid = document.getElementById('sermons-grid');
+      const pagination = document.getElementById('pagination');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+      const loadMoreBtn = document.getElementById('load-more-btn');
+
+      if (grid) grid.innerHTML = savedHtml;
+      document.getElementById('pagination-placeholder')?.remove();
+
+      nextToken = sessionStorage.getItem('sermons-next-token') || null;
+      prevToken = sessionStorage.getItem('sermons-prev-token') || null;
+
+      if (pagination) {
+        pagination.classList.remove('hidden');
+        pagination.classList.add('flex');
+      }
+      if (prevToken && prevBtn) {
+        prevBtn.classList.remove('hidden');
+        prevBtn.classList.add('inline-flex');
+      }
+      if (nextToken) {
+        nextBtn?.classList.remove('hidden');
+        nextBtn?.classList.add('inline-flex');
+        loadMoreBtn?.classList.remove('hidden');
+        loadMoreBtn?.classList.add('inline-flex');
+      }
+
+      const savedScroll = sessionStorage.getItem('sermons-scroll');
+      if (savedScroll) {
+        requestAnimationFrame(() => window.scrollTo({ top: parseInt(savedScroll) }));
+      }
+
+      sessionStorage.removeItem('sermons-html');
+      sessionStorage.removeItem('sermons-scroll');
+      sessionStorage.removeItem('sermons-next-token');
+      sessionStorage.removeItem('sermons-prev-token');
+    } else {
+      sessionStorage.removeItem('sermons-html');
+      sessionStorage.removeItem('sermons-scroll');
+      sessionStorage.removeItem('sermons-next-token');
+      sessionStorage.removeItem('sermons-prev-token');
+      const pageToken = new URLSearchParams(window.location.search).get('pageToken') ?? '';
+      loadPage(pageToken);
+    }
+
+    document.getElementById('sermons-grid')?.addEventListener('click', (e) => {
+      const link = (e.target as Element).closest('a');
+      if (!link) return;
+      const grid = document.getElementById('sermons-grid');
+      if (grid) sessionStorage.setItem('sermons-html', grid.innerHTML);
+      sessionStorage.setItem('sermons-scroll', String(window.scrollY));
+      if (nextToken) sessionStorage.setItem('sermons-next-token', nextToken);
+      if (prevToken) sessionStorage.setItem('sermons-prev-token', prevToken);
+    });
 
     document.getElementById('prev-btn')?.addEventListener('click', () => {
       if (!prevToken) return;
@@ -207,8 +311,33 @@ import Footer from '../../components/Footer.astro';
       loadPage(nextToken);
       window.scrollTo({ top: 0 });
     });
+
+    document.getElementById('load-more-btn')?.addEventListener('click', () => {
+      if (!nextToken) return;
+      loadPage(nextToken, true);
+    });
+  }
+
+  function initScrollTop() {
+    if (!document.getElementById('sermons-grid')) return;
+    const btn = document.getElementById('scroll-top-btn');
+    if (!btn) return;
+
+    const toggle = () => {
+      const past = window.scrollY > window.innerHeight;
+      btn.classList.toggle('opacity-0', !past);
+      btn.classList.toggle('opacity-100', past);
+      btn.classList.toggle('translate-y-2', !past);
+      btn.classList.toggle('translate-y-0', past);
+      btn.classList.toggle('pointer-events-none', !past);
+    };
+
+    window.addEventListener('scroll', toggle, { passive: true });
+    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
   }
 
   document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:page-load', initScrollTop);
   init();
+  initScrollTop();
 </script>
