@@ -7,17 +7,7 @@ import Footer from '../../components/Footer.astro';
 <Layout title="설교 | 시애틀 참빛교회" description="시애틀 참빛교회 설교 페이지입니다. 주일 예배와 새벽 예배 영상을 통해 하나님의 말씀을 나눕니다.">
   <Navbar />
 
-  <button
-    id="scroll-top-btn"
-    aria-label="맨 위로"
-    class="fixed bottom-6 right-6 z-50 w-10 h-10 flex items-center justify-center rounded-full bg-white border border-gray-300 text-gray-500 shadow-sm opacity-0 translate-y-2 pointer-events-none transition-all duration-200"
-  >
-    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7" />
-    </svg>
-  </button>
-
-  <main class="bg-white flex-1 pt-20">
+<main class="bg-white flex-1 pt-20">
     <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
       <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
         <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
@@ -77,7 +67,7 @@ import Footer from '../../components/Footer.astro';
       <div class="md:hidden mt-10 flex justify-center">
         <button
           id="load-more-btn"
-          class="hidden items-center gap-2 bg-gray-900 text-white font-semibold text-lg px-[28px] py-[14px] rounded-lg hover:bg-gray-700 transition-colors cursor-pointer"
+          class="hidden items-center gap-2 bg-gray-900 text-white font-semibold text-lg px-[28px] py-[14px] rounded-lg hover:bg-gray-700 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           더 보기
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,8 +166,13 @@ import Footer from '../../components/Footer.astro';
     const pagination = document.getElementById('pagination');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
-    const loadMoreBtn = document.getElementById('load-more-btn');
+    const loadMoreBtn = document.getElementById('load-more-btn') as HTMLButtonElement | null;
     if (!grid || !pagination || !prevBtn || !nextBtn) { loading = false; return; }
+
+    if (append && loadMoreBtn) {
+      loadMoreBtn.disabled = true;
+      loadMoreBtn.innerHTML = `더 보기 <svg class="w-4 h-4 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 12a8 8 0 018-8V4" /></svg>`;
+    }
 
     try {
       const url = new URL('/api/sermons.json', window.location.origin);
@@ -228,6 +223,10 @@ import Footer from '../../components/Footer.astro';
       }
     } finally {
       loading = false;
+      if (append && loadMoreBtn) {
+        loadMoreBtn.disabled = false;
+        loadMoreBtn.innerHTML = `더 보기 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>`;
+      }
     }
   }
 
@@ -318,26 +317,6 @@ import Footer from '../../components/Footer.astro';
     });
   }
 
-  function initScrollTop() {
-    if (!document.getElementById('sermons-grid')) return;
-    const btn = document.getElementById('scroll-top-btn');
-    if (!btn) return;
-
-    const toggle = () => {
-      const past = window.scrollY > window.innerHeight;
-      btn.classList.toggle('opacity-0', !past);
-      btn.classList.toggle('opacity-100', past);
-      btn.classList.toggle('translate-y-2', !past);
-      btn.classList.toggle('translate-y-0', past);
-      btn.classList.toggle('pointer-events-none', !past);
-    };
-
-    window.addEventListener('scroll', toggle, { passive: true });
-    btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  }
-
   document.addEventListener('astro:page-load', init);
-  document.addEventListener('astro:page-load', initScrollTop);
   init();
-  initScrollTop();
 </script>
