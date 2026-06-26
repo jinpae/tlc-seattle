@@ -1,0 +1,188 @@
+---
+export const prerender = false;
+
+import { YOUTUBE_API_KEY } from 'astro:env/server';
+import Layout from '../../../layouts/Layout.astro';
+import Navbar from '../../../components/Navbar.astro';
+import Footer from '../../../components/Footer.astro';
+
+const { playlistId } = Astro.params;
+const selectedVideoId = Astro.url.searchParams.get('v');
+
+const [metaRes, itemsRes] = await Promise.all([
+  fetch(`https://www.googleapis.com/youtube/v3/playlists?part=snippet&id=${playlistId}&key=${YOUTUBE_API_KEY}`),
+  fetch(`https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&key=${YOUTUBE_API_KEY}`),
+]);
+
+const { items: metaItems = [] } = await metaRes.json();
+const playlist = metaItems[0];
+if (!playlist) return Astro.redirect('/sermons/series');
+
+const { items: rawItems = [], nextPageToken: firstNextToken } = await itemsRes.json();
+
+let allItems = [...rawItems];
+let nextToken = firstNextToken;
+while (nextToken) {
+  const more = await fetch(
+    `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlistId}&maxResults=50&pageToken=${nextToken}&key=${YOUTUBE_API_KEY}`
+  );
+  const { items: moreItems = [], nextPageToken } = await more.json();
+  allItems.push(...moreItems);
+  nextToken = nextPageToken;
+}
+
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+const videos = allItems
+  .filter((item: any) => item.snippet.resourceId?.kind === 'youtube#video')
+  .map((item: any) => ({
+    videoId: item.snippet.resourceId.videoId,
+    title: item.snippet.title,
+    thumbnail: `https://i.ytimg.com/vi/${item.snippet.resourceId.videoId}/mqdefault.jpg`,
+    date: formatDate(item.snippet.publishedAt),
+  }));
+
+const initialVideo = videos.find(v => v.videoId === selectedVideoId) ?? videos[0];
+const playlistTitle = playlist.snippet.title as string;
+---
+
+<Layout title={`${playlistTitle} | 시애틀 참빛교회`} description={`${playlistTitle} — 시애틀 참빛교회 시리즈 설교입니다.`}>
+  <Navbar />
+
+  <main class="bg-white flex-1 pt-20">
+    <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
+
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
+        <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
+          시리즈 설교
+        </span>
+      </h1>
+
+      <div class="flex flex-col gap-16">
+
+        <!-- Player -->
+        <div>
+          <h2 id="current-title" class="text-lg md:text-xl font-bold text-gray-900 leading-snug mb-1">
+            {initialVideo?.title}
+          </h2>
+          <p class="flex items-center gap-1.5 text-sm text-gray-500 mb-4">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <rect x="3" y="4" width="18" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16 2v4M8 2v4M3 10h18" />
+            </svg>
+            <span id="current-date">{initialVideo?.date}</span>
+          </p>
+          <div class="aspect-video">
+            <iframe
+              id="player"
+              src={`https://www.youtube.com/embed/${initialVideo?.videoId}`}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="w-full h-full"
+            />
+          </div>
+        </div>
+
+        <!-- Playlist -->
+        <div>
+          <div class="pb-4">
+            <p class="text-[17px] lg:text-[20px] font-bold text-gray-900 mb-1">{playlistTitle}</p>
+            <p class="flex items-center gap-1.5 text-[14px] lg:text-[16px] font-light text-gray-500">
+              <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 32 32" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;">
+                <path d="M5.011,19l21.989,-0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-21.989,0c-0.552,0 -1,0.448 -1,1c-0,0.552 0.448,1 1,1Z"/>
+                <path d="M5.019,28l21.981,-0c0.552,0 1,-0.448 1,-1c0,-0.552 -0.448,-1 -1,-1l-21.981,0c-0.552,0 -1,0.448 -1,1c0,0.552 0.448,1 1,1Z"/>
+                <path d="M15.994,10l11.006,0c0.552,-0 1,-0.448 1,-1c-0,-0.552 -0.448,-1 -1,-1l-11.006,0c-0.552,-0 -1,0.448 -1,1c-0,0.552 0.448,1 1,1Z"/>
+                <path d="M12.496,9.868c0.312,-0.178 0.504,-0.509 0.504,-0.868c-0,-0.359 -0.192,-0.69 -0.504,-0.868l-7,-4c-0.309,-0.177 -0.69,-0.176 -0.998,0.003c-0.308,0.179 -0.498,0.509 -0.498,0.865l-0,8c-0,0.356 0.19,0.686 0.498,0.865c0.308,0.179 0.689,0.18 0.998,0.003l7,-4Z"/>
+              </svg>
+              <span id="playlist-counter">({videos.findIndex(v => v.videoId === initialVideo?.videoId) + 1} / {videos.length})</span>
+            </p>
+          </div>
+          <ul id="playlist" class="divide-y divide-gray-200 overflow-y-auto overflow-x-hidden max-h-[30rem]">
+            {videos.map((video, i) => (
+              <li
+                data-video-id={video.videoId}
+                data-title={video.title}
+                data-date={video.date}
+                class:list={[
+                  'flex items-center gap-3 py-3 cursor-pointer hover:bg-gray-50 px-3',
+                  video.videoId === initialVideo?.videoId && 'bg-gray-100',
+                ]}
+              >
+                <span data-num={i + 1} class="w-4 lg:w-5 shrink-0 flex items-center justify-end">
+                  {video.videoId === initialVideo?.videoId ? (
+                    <svg class="w-3.5 h-3.5 lg:w-4 lg:h-4 text-gray-600" fill="currentColor" viewBox="0 5 19 14">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  ) : (
+                    <span class="text-sm lg:text-base text-gray-600">{i + 1}</span>
+                  )}
+                </span>
+                <img
+                  src={video.thumbnail}
+                  alt={video.title}
+                  class="w-24 aspect-video object-cover rounded shrink-0"
+                  loading="lazy"
+                />
+                <div class="min-w-0">
+                  <p class="text-[16px] lg:text-[18px] font-semibold leading-snug line-clamp-2 text-gray-700">{video.title}</p>
+                  <p class="text-[14px] text-gray-500 mt-1">{video.date}</p>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+      </div>
+
+      <a href="/sermons/series" class="inline-flex items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors mt-16">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+        </svg>
+        시리즈 설교 목록
+      </a>
+    </div>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  function initPlaylist() {
+    const player = document.getElementById('player') as HTMLIFrameElement | null;
+    const currentTitle = document.getElementById('current-title');
+    const currentDate = document.getElementById('current-date');
+    const counter = document.getElementById('playlist-counter');
+    const total = document.querySelectorAll('#playlist li[data-video-id]').length;
+    if (!player) return;
+
+    document.querySelectorAll<HTMLLIElement>('#playlist li[data-video-id]').forEach(li => {
+      li.addEventListener('click', () => {
+        const { videoId, title, date } = li.dataset;
+        if (!videoId) return;
+
+        player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+        history.replaceState({}, '', `?v=${videoId}`);
+
+        if (currentTitle) currentTitle.textContent = title ?? '';
+        if (currentDate) currentDate.textContent = date ?? '';
+
+        document.querySelectorAll<HTMLLIElement>('#playlist li[data-video-id]').forEach(l => {
+          l.classList.remove('bg-gray-100');
+          const numEl = l.querySelector<HTMLElement>('[data-num]');
+          if (numEl) numEl.innerHTML = `<span class="text-sm lg:text-base text-gray-600">${numEl.dataset.num}</span>`;
+        });
+        li.classList.add('bg-gray-100');
+        const numEl = li.querySelector<HTMLElement>('[data-num]');
+        if (numEl) numEl.innerHTML = `<svg class="w-3.5 h-3.5 lg:w-4 lg:h-4 text-gray-600" fill="currentColor" viewBox="0 5 19 14"><path d="M8 5v14l11-7z" /></svg>`;
+        if (counter && numEl) counter.textContent = `(${numEl.dataset.num} / ${total})`;
+
+
+      });
+    });
+  }
+
+  document.addEventListener('astro:page-load', initPlaylist);
+  initPlaylist();
+</script>

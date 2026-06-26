@@ -4,13 +4,25 @@ interface Props {
 }
 const { variant = 'page' } = Astro.props;
 
-const navLinks = [
+interface ChildLink { label: string; href: string }
+interface NavLink { label: string; href?: string; children?: ChildLink[] }
+
+const navLinks: NavLink[] = [
   { label: '교회 소개', href: '/about' },
   { label: '예배 및 모임', href: '/worship' },
-  { label: '설교', href: '/sermons' },
+  {
+    label: '설교',
+    children: [
+      { label: '주일 예배', href: '/sermons' },
+      { label: '시리즈 설교', href: '/sermons/series' },
+      { label: '간증', href: '/sermons/testimony' },
+    ],
+  },
   { label: '사진첩', href: '/gallery' },
   { label: '오시는 길', href: '/directions' },
 ];
+
+const linkClass = 'text-[1.125rem] 3xl:text-[1.25rem] tracking-[-0.04rem] text-gray-600 hover:text-gray-900 transition-colors font-bold';
 ---
 
 <header
@@ -31,14 +43,27 @@ const navLinks = [
 
     <!-- Desktop nav links -->
     <nav class="hidden md:flex items-center gap-8">
-      {navLinks.map(link => (
-        <a
-          href={link.href}
-          class="text-[1.125rem] 3xl:text-[1.25rem] tracking-[-0.04rem] text-gray-600 hover:text-gray-900 transition-colors font-bold"
-        >
-          {link.label}
-        </a>
-      ))}
+      {navLinks.map(link =>
+        link.children ? (
+          <div class="relative group">
+            <button class={linkClass}>
+              {link.label}
+            </button>
+            <!-- pt-3 bridges the gap between trigger and panel so hover doesn't break -->
+            <div class="absolute top-full left-1/2 -translate-x-1/2 pt-3 hidden group-hover:block z-10">
+              <div class="bg-white border border-gray-100 shadow-md rounded-lg overflow-hidden py-1 min-w-[9rem]">
+                {link.children.map(child => (
+                  <a href={child.href} class="block px-4 py-2.5 text-base font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-50 whitespace-nowrap">
+                    {child.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <a href={link.href} class={linkClass}>{link.label}</a>
+        )
+      )}
     </nav>
 
     <!-- Mobile toggle button -->
@@ -79,14 +104,29 @@ const navLinks = [
     </button>
   </div>
   <div class="flex flex-col divide-y divide-gray-100 px-6">
-    {navLinks.map(link => (
-      <a
-        href={link.href}
-        class="text-xl font-bold text-gray-700 hover:text-gray-900 transition-colors py-4"
-      >
-        {link.label}
-      </a>
-    ))}
+    {navLinks.map(link =>
+      link.children ? (
+        <div>
+          <button id="sermon-toggle" class="w-full flex items-center justify-between text-xl font-bold text-gray-700 py-4">
+            {link.label}
+            <svg id="sermon-chevron" class="w-5 h-5 text-gray-500 transition-transform duration-200" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
+          <div id="sermon-submenu" class="hidden pb-3">
+            {link.children.map(child => (
+              <a href={child.href} class="block py-2.5 pl-1 text-lg font-semibold text-gray-500 hover:text-gray-900 transition-colors">
+                {child.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <a href={link.href} class="text-xl font-bold text-gray-700 hover:text-gray-900 transition-colors py-4">
+          {link.label}
+        </a>
+      )
+    )}
   </div>
 </nav>
 
@@ -112,6 +152,9 @@ const navLinks = [
     const backdrop = document.getElementById('mobile-backdrop');
     const menu = document.getElementById('mobile-menu');
     const drawerClose = document.getElementById('drawer-close');
+    const sermonToggle = document.getElementById('sermon-toggle');
+    const sermonSubmenu = document.getElementById('sermon-submenu');
+    const sermonChevron = document.getElementById('sermon-chevron');
     if (!backdrop || !menu) return;
 
     menu.addEventListener('transitionend', (e) => {
@@ -129,7 +172,7 @@ const navLinks = [
     function openMenu() {
       menu.style.display = '';
       backdrop.style.display = '';
-      menu.offsetWidth; // flush pending styles so transition fires from initial state
+      menu.offsetWidth;
       backdrop.classList.add('open');
       menu.classList.add('open');
       menu.setAttribute('aria-hidden', 'false');
@@ -145,7 +188,15 @@ const navLinks = [
       toggle.setAttribute('aria-expanded', 'false');
       toggle.setAttribute('aria-label', '메뉴 열기');
       document.body.style.overflow = '';
+      sermonSubmenu?.classList.add('hidden');
+      sermonChevron?.classList.remove('rotate-90');
     }
+
+    sermonToggle?.addEventListener('click', () => {
+      const isOpen = !sermonSubmenu?.classList.contains('hidden');
+      sermonSubmenu?.classList.toggle('hidden', isOpen);
+      sermonChevron?.classList.toggle('rotate-90', !isOpen);
+    });
 
     toggle.addEventListener('click', () => {
       toggle.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();

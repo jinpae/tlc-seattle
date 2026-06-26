@@ -1,0 +1,91 @@
+---
+export const prerender = false;
+
+import { YOUTUBE_API_KEY } from 'astro:env/server';
+import Layout from '../../../layouts/Layout.astro';
+import Navbar from '../../../components/Navbar.astro';
+import Footer from '../../../components/Footer.astro';
+
+const SERIES_PLAYLIST_IDS = [
+  'PLTlnUT-NGTVL8b1EtjJ0DiW8lZ2t85RlL',
+  'PLTlnUT-NGTVJHmPL7o2ok01LWl5Xkk8pD',
+  'PLTlnUT-NGTVJaz5AmbqsOJyqxXPiw8fDJ',
+  'PLTlnUT-NGTVJYTQZveRRu8exTO4vE1tbG',
+];
+
+const res = await fetch(
+  `https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&id=${SERIES_PLAYLIST_IDS.join(',')}&key=${YOUTUBE_API_KEY}`
+);
+const { items = [] } = await res.json();
+
+const byId = Object.fromEntries(items.map((item: any) => [item.id, item]));
+const series = SERIES_PLAYLIST_IDS
+  .map(id => byId[id])
+  .filter(Boolean)
+  .map((item: any) => {
+    const t = item.snippet.thumbnails;
+    const thumbnail = t?.maxres?.url || t?.standard?.url || t?.high?.url || t?.medium?.url || '';
+    const date = new Date(item.snippet.publishedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+    return {
+      id: item.id,
+      title: item.snippet.title,
+      count: item.contentDetails.itemCount as number,
+      thumbnail,
+      date,
+    };
+  });
+---
+
+<Layout title="시리즈 설교 | 시애틀 참빛교회" description="시애틀 참빛교회의 시리즈 설교입니다. 성경 말씀을 주제별로 깊이 있게 나누는 시리즈 강해 설교를 만나보세요.">
+  <Navbar />
+
+  <main class="bg-white flex-1 pt-20">
+    <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
+      <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
+        <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
+          시리즈 설교
+        </span>
+      </h1>
+
+      {series.length === 0 ? (
+        <p class="text-center text-gray-400 py-24">시리즈를 불러오지 못했습니다.</p>
+      ) : (
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {series.map(s => (
+            <a href={`/sermons/series/${s.id}`} class="group block overflow-hidden border border-gray-200 hover:border-gray-300 transition-colors">
+              <div class="relative aspect-video bg-gray-100 overflow-hidden">
+                {s.thumbnail ? (
+                  <img
+                    src={s.thumbnail}
+                    alt={s.title}
+                    class="w-full h-full object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div class="w-full h-full flex items-center justify-center text-gray-300">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.069A1 1 0 0121 8.868V15.132a1 1 0 01-1.447.9L15 14M3 8a2 2 0 012-2h8a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8z" />
+                    </svg>
+                  </div>
+                )}
+                <span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">{s.count}편</span>
+              </div>
+              <div class="p-4">
+                <h2 class="font-bold text-gray-900 text-base leading-snug group-hover:text-gray-600 transition-colors">{s.title}</h2>
+                <p class="flex items-center gap-1 text-sm text-gray-400 mt-1">
+                  <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <rect x="3" y="4" width="18" height="18" rx="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16 2v4M8 2v4M3 10h18" />
+                  </svg>
+                  {s.date}
+                </p>
+              </div>
+            </a>
+          ))}
+        </div>
+      )}
+    </div>
+  </main>
+
+  <Footer />
+</Layout>

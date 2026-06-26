@@ -25,7 +25,11 @@ const date = new Date(publishedAt).toLocaleDateString('ko-KR', {
 });
 
 const fromToken = Astro.url.searchParams.get('from');
-const backHref = fromToken ? `/sermons?pageToken=${encodeURIComponent(fromToken)}` : '/sermons';
+const type = Astro.url.searchParams.get('type');
+
+const pageLabel = type === 'testimony' ? '간증' : '주일 예배';
+const backBase = type === 'testimony' ? '/sermons/testimony' : '/sermons';
+const backHref = fromToken ? `${backBase}?pageToken=${encodeURIComponent(fromToken)}` : backBase;
 ---
 
 <Layout title={`${title} | 시애틀 참빛교회`} description={`${title} — 시애틀 참빛교회 설교 영상입니다.`}>
@@ -36,7 +40,7 @@ const backHref = fromToken ? `/sermons?pageToken=${encodeURIComponent(fromToken)
 
       <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
         <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
-          설교
+          {pageLabel}
         </span>
       </h1>
 
@@ -69,7 +73,7 @@ const backHref = fromToken ? `/sermons?pageToken=${encodeURIComponent(fromToken)
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
           </svg>
-          설교 목록
+          {pageLabel} 목록
         </a>
       </div>
 

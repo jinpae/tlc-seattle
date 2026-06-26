@@ -4,7 +4,7 @@ import type { APIRoute } from 'astro';
 import { YOUTUBE_API_KEY } from 'astro:env/server';
 
 const CHANNEL_ID = 'UCgneXaRspkl-5lwShOP0ElQ';
-const PLAYLIST_ID = 'UU' + CHANNEL_ID.slice(2);
+const DEFAULT_PLAYLIST_ID = 'UU' + CHANNEL_ID.slice(2);
 
 function parseDuration(iso: string): string {
   const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
@@ -20,11 +20,12 @@ export const GET: APIRoute = async ({ request }) => {
   const url = new URL(request.url);
   const pageToken = url.searchParams.get('pageToken') ?? '';
   const maxResults = Math.min(parseInt(url.searchParams.get('maxResults') ?? '6'), 24);
+  const playlistId = url.searchParams.get('playlistId') || DEFAULT_PLAYLIST_ID;
   const key = YOUTUBE_API_KEY;
 
   const playlistUrl = new URL('https://www.googleapis.com/youtube/v3/playlistItems');
   playlistUrl.searchParams.set('part', 'snippet');
-  playlistUrl.searchParams.set('playlistId', PLAYLIST_ID);
+  playlistUrl.searchParams.set('playlistId', playlistId);
   playlistUrl.searchParams.set('maxResults', String(maxResults));
   playlistUrl.searchParams.set('key', key);
   if (pageToken) playlistUrl.searchParams.set('pageToken', pageToken);

@@ -1,22 +1,22 @@
 ---
-import Layout from '../../layouts/Layout.astro';
-import Navbar from '../../components/Navbar.astro';
-import Footer from '../../components/Footer.astro';
+import Layout from '../../../layouts/Layout.astro';
+import Navbar from '../../../components/Navbar.astro';
+import Footer from '../../../components/Footer.astro';
 ---
 
-<Layout title="주일 예배 | 시애틀 참빛교회" description="시애틀 참빛교회 주일 예배 설교 영상입니다.">
+<Layout title="간증 | 시애틀 참빛교회" description="시애틀 참빛교회 성도들의 간증 영상입니다.">
   <Navbar />
 
-<main class="bg-white flex-1 pt-20">
+  <main class="bg-white flex-1 pt-20">
     <div class="max-w-6xl mx-auto px-6 py-12 md:py-24 xl:py-32">
       <h1 class="text-3xl md:text-4xl font-bold text-gray-900 pb-2 mb-10">
         <span class="px-1 -mx-1 bg-[linear-gradient(transparent_62%,rgba(240,194,45,0.35)_62%)]">
-          주일 예배
+          간증
         </span>
       </h1>
 
       <div
-        id="sermons-grid"
+        id="testimony-grid"
         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"
       >
         {Array.from({ length: 12 }).map(() => (
@@ -42,19 +42,13 @@ import Footer from '../../components/Footer.astro';
           </span>
         </div>
         <div id="pagination" class="hidden mt-10 items-center justify-end gap-6">
-          <button
-            id="prev-btn"
-            class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
-          >
+          <button id="prev-btn" class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
             </svg>
             이전
           </button>
-          <button
-            id="next-btn"
-            class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer"
-          >
+          <button id="next-btn" class="hidden items-center gap-1.5 text-[18px] text-gray-500 hover:text-gray-900 transition-colors cursor-pointer">
             다음
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
@@ -82,68 +76,42 @@ import Footer from '../../components/Footer.astro';
 </Layout>
 
 <style is:global>
-  .sermon-card-skeleton-body {
-    /* match real card: flex: 1 0 96.5px */
-    min-height: 96.5px;
-    padding: 1rem;
-  }
-  .sermon-card-skeleton-title-a {
-    height: 18px;
-    border-radius: 3px;
-    background: #d1d5db;
-  }
-  .sermon-card-skeleton-title-b {
-    height: 18px;
-    width: 65%;
-    margin-top: 4px;
-    border-radius: 3px;
-    background: #d1d5db;
-  }
-  .sermon-card-skeleton-date {
-    height: 18px;
-    width: 45%;
-    margin-top: 6px;
-    border-radius: 3px;
-    background: #e5e7eb;
-  }
+  .sermon-card-skeleton-body { min-height: 96.5px; padding: 1rem; }
+  .sermon-card-skeleton-title-a { height: 18px; border-radius: 3px; background: #d1d5db; }
+  .sermon-card-skeleton-title-b { height: 18px; width: 65%; margin-top: 4px; border-radius: 3px; background: #d1d5db; }
+  .sermon-card-skeleton-date { height: 18px; width: 45%; margin-top: 6px; border-radius: 3px; background: #e5e7eb; }
 </style>
 
 <script>
+  const TESTIMONY_PLAYLIST_ID = 'PLV_K1Kl3-cDI';
   let nextToken: string | null = null;
   let prevToken: string | null = null;
   let loading = false;
   let pendingBackNav = false;
 
-  document.addEventListener('astro:before-swap', (e: any) => {
-    if (e.to?.pathname === '/sermons' && e.from?.pathname?.startsWith('/sermons/')) {
+  document.addEventListener('astro:before-swap', (e) => {
+    if (e.to?.pathname === '/sermons/testimony' && e.from?.pathname?.startsWith('/sermons/')) {
       pendingBackNav = true;
     }
   });
 
-  function preloadImages(urls: string[]): Promise<void> {
-    const loads = Promise.all(urls.map(src => new Promise<void>(resolve => {
+  function preloadImages(urls) {
+    const loads = Promise.all(urls.map(src => new Promise(resolve => {
       const img = new Image();
-      img.onload = () => resolve();
-      img.onerror = () => resolve();
+      img.onload = img.onerror = resolve;
       img.src = src;
     })));
-    return Promise.race([loads, new Promise<void>(resolve => setTimeout(resolve, 1000))]);
+    return Promise.race([loads, new Promise(resolve => setTimeout(resolve, 1000))]);
   }
 
   function cardHTML({ videoId, title, publishedAt, thumbnail, duration }: any, pageToken: string) {
-    const date = new Date(publishedAt).toLocaleDateString('ko-KR', {
-      year: 'numeric', month: 'long', day: 'numeric',
-    });
-    const from = pageToken ? `?from=${encodeURIComponent(pageToken)}` : '';
+    const date = new Date(publishedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' });
+    const params = new URLSearchParams({ type: 'testimony' });
+    if (pageToken) params.set('from', pageToken);
     return `
-      <a href="/sermons/${videoId}${from}" class="sermon-card-sm group bg-white overflow-hidden">
+      <a href="/sermons/${videoId}?${params}" class="sermon-card-sm group bg-white overflow-hidden">
         <div class="relative aspect-video overflow-hidden">
-          <img
-            src="${thumbnail}"
-            alt="${title.replace(/"/g, '&quot;')}"
-            class="w-full h-full object-cover"
-            loading="lazy"
-          />
+          <img src="${thumbnail}" alt="${title.replace(/"/g, '&quot;')}" class="w-full h-full object-cover" loading="lazy" />
           ${duration ? `<span class="absolute bottom-2 right-2 bg-black/80 text-white text-xs font-medium px-1.5 py-0.5 rounded">${duration}</span>` : ''}
         </div>
         <div class="sermon-card-sm-body">
@@ -159,14 +127,14 @@ import Footer from '../../components/Footer.astro';
       </a>`;
   }
 
-  async function loadPage(pageToken: string, append = false) {
+  async function loadPage(pageToken, append = false) {
     if (loading) return;
     loading = true;
-    const grid = document.getElementById('sermons-grid');
+    const grid = document.getElementById('testimony-grid');
     const pagination = document.getElementById('pagination');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
-    const loadMoreBtn = document.getElementById('load-more-btn') as HTMLButtonElement | null;
+    const loadMoreBtn = document.getElementById('load-more-btn');
     if (!grid || !pagination || !prevBtn || !nextBtn) { loading = false; return; }
 
     if (append && loadMoreBtn) {
@@ -177,6 +145,7 @@ import Footer from '../../components/Footer.astro';
     try {
       const url = new URL('/api/sermons.json', window.location.origin);
       url.searchParams.set('maxResults', '12');
+      url.searchParams.set('playlistId', TESTIMONY_PLAYLIST_ID);
       if (pageToken) url.searchParams.set('pageToken', pageToken);
 
       const res = await fetch(url.toString());
@@ -186,41 +155,26 @@ import Footer from '../../components/Footer.astro';
       nextToken = data.nextPageToken;
       prevToken = data.prevPageToken;
 
-      await preloadImages(data.sermons.map((s: any) => s.thumbnail));
-      const cards = data.sermons.map((s: any) => cardHTML(s, pageToken)).join('');
-      if (append) {
-        grid.insertAdjacentHTML('beforeend', cards);
-      } else {
-        grid.innerHTML = cards;
-      }
+      await preloadImages(data.sermons.map(s => s.thumbnail));
+      const cards = data.sermons.map(s => cardHTML(s, pageToken)).join('');
+      if (append) { grid.insertAdjacentHTML('beforeend', cards); } else { grid.innerHTML = cards; }
 
       document.getElementById('pagination-placeholder')?.remove();
       pagination.classList.remove('hidden');
       pagination.classList.add('flex');
 
-      if (prevToken) {
-        prevBtn.classList.remove('hidden');
-        prevBtn.classList.add('inline-flex');
-      } else {
-        prevBtn.classList.add('hidden');
-        prevBtn.classList.remove('inline-flex');
-      }
+      if (prevToken) { prevBtn.classList.remove('hidden'); prevBtn.classList.add('inline-flex'); }
+      else { prevBtn.classList.add('hidden'); prevBtn.classList.remove('inline-flex'); }
 
       if (nextToken) {
-        nextBtn.classList.remove('hidden');
-        nextBtn.classList.add('inline-flex');
-        loadMoreBtn?.classList.remove('hidden');
-        loadMoreBtn?.classList.add('inline-flex');
+        nextBtn.classList.remove('hidden'); nextBtn.classList.add('inline-flex');
+        loadMoreBtn?.classList.remove('hidden'); loadMoreBtn?.classList.add('inline-flex');
       } else {
-        nextBtn.classList.add('hidden');
-        nextBtn.classList.remove('inline-flex');
-        loadMoreBtn?.classList.add('hidden');
-        loadMoreBtn?.classList.remove('inline-flex');
+        nextBtn.classList.add('hidden'); nextBtn.classList.remove('inline-flex');
+        loadMoreBtn?.classList.add('hidden'); loadMoreBtn?.classList.remove('inline-flex');
       }
     } catch {
-      if (!append) {
-        grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-12">설교를 불러오지 못했습니다.</p>';
-      }
+      if (!append) grid.innerHTML = '<p class="col-span-full text-center text-gray-400 py-12">간증을 불러오지 못했습니다.</p>';
     } finally {
       loading = false;
       if (append && loadMoreBtn) {
@@ -231,14 +185,15 @@ import Footer from '../../components/Footer.astro';
   }
 
   function init() {
-    if (!document.getElementById('sermons-grid')) return;
+    if (!document.getElementById('testimony-grid')) return;
 
     const isMobile = window.innerWidth < 768;
-    const savedHtml = sessionStorage.getItem('sermons-html');
+    const savedHtml = sessionStorage.getItem('testimony-html');
     const isBack = pendingBackNav;
     pendingBackNav = false;
+
     if (isBack && savedHtml && isMobile) {
-      const grid = document.getElementById('sermons-grid');
+      const grid = document.getElementById('testimony-grid');
       const pagination = document.getElementById('pagination');
       const prevBtn = document.getElementById('prev-btn');
       const nextBtn = document.getElementById('next-btn');
@@ -247,50 +202,40 @@ import Footer from '../../components/Footer.astro';
       if (grid) grid.innerHTML = savedHtml;
       document.getElementById('pagination-placeholder')?.remove();
 
-      nextToken = sessionStorage.getItem('sermons-next-token') || null;
-      prevToken = sessionStorage.getItem('sermons-prev-token') || null;
+      nextToken = sessionStorage.getItem('testimony-next-token') || null;
+      prevToken = sessionStorage.getItem('testimony-prev-token') || null;
 
-      if (pagination) {
-        pagination.classList.remove('hidden');
-        pagination.classList.add('flex');
-      }
-      if (prevToken && prevBtn) {
-        prevBtn.classList.remove('hidden');
-        prevBtn.classList.add('inline-flex');
-      }
+      if (pagination) { pagination.classList.remove('hidden'); pagination.classList.add('flex'); }
+      if (prevToken && prevBtn) { prevBtn.classList.remove('hidden'); prevBtn.classList.add('inline-flex'); }
       if (nextToken) {
-        nextBtn?.classList.remove('hidden');
-        nextBtn?.classList.add('inline-flex');
-        loadMoreBtn?.classList.remove('hidden');
-        loadMoreBtn?.classList.add('inline-flex');
+        nextBtn?.classList.remove('hidden'); nextBtn?.classList.add('inline-flex');
+        loadMoreBtn?.classList.remove('hidden'); loadMoreBtn?.classList.add('inline-flex');
       }
 
-      const savedScroll = sessionStorage.getItem('sermons-scroll');
-      if (savedScroll) {
-        requestAnimationFrame(() => window.scrollTo({ top: parseInt(savedScroll) }));
-      }
+      const savedScroll = sessionStorage.getItem('testimony-scroll');
+      if (savedScroll) requestAnimationFrame(() => window.scrollTo({ top: parseInt(savedScroll) }));
 
-      sessionStorage.removeItem('sermons-html');
-      sessionStorage.removeItem('sermons-scroll');
-      sessionStorage.removeItem('sermons-next-token');
-      sessionStorage.removeItem('sermons-prev-token');
+      sessionStorage.removeItem('testimony-html');
+      sessionStorage.removeItem('testimony-scroll');
+      sessionStorage.removeItem('testimony-next-token');
+      sessionStorage.removeItem('testimony-prev-token');
     } else {
-      sessionStorage.removeItem('sermons-html');
-      sessionStorage.removeItem('sermons-scroll');
-      sessionStorage.removeItem('sermons-next-token');
-      sessionStorage.removeItem('sermons-prev-token');
+      sessionStorage.removeItem('testimony-html');
+      sessionStorage.removeItem('testimony-scroll');
+      sessionStorage.removeItem('testimony-next-token');
+      sessionStorage.removeItem('testimony-prev-token');
       const pageToken = new URLSearchParams(window.location.search).get('pageToken') ?? '';
       loadPage(pageToken);
     }
 
-    document.getElementById('sermons-grid')?.addEventListener('click', (e) => {
-      const link = (e.target as Element).closest('a');
+    document.getElementById('testimony-grid')?.addEventListener('click', (e) => {
+      const link = e.target.closest('a');
       if (!link) return;
-      const grid = document.getElementById('sermons-grid');
-      if (grid) sessionStorage.setItem('sermons-html', grid.innerHTML);
-      sessionStorage.setItem('sermons-scroll', String(window.scrollY));
-      if (nextToken) sessionStorage.setItem('sermons-next-token', nextToken);
-      if (prevToken) sessionStorage.setItem('sermons-prev-token', prevToken);
+      const grid = document.getElementById('testimony-grid');
+      if (grid) sessionStorage.setItem('testimony-html', grid.innerHTML);
+      sessionStorage.setItem('testimony-scroll', String(window.scrollY));
+      if (nextToken) sessionStorage.setItem('testimony-next-token', nextToken);
+      if (prevToken) sessionStorage.setItem('testimony-prev-token', prevToken);
     });
 
     document.getElementById('prev-btn')?.addEventListener('click', () => {
